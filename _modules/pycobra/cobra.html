@@ -1,0 +1,546 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pycobra.cobra &mdash; pycobra 0.1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../genindex.html"/>
+        <link rel="search" title="Search" href="../../search.html"/>
+    <link rel="top" title="pycobra 0.1.0 documentation" href="../../index.html"/>
+        <link rel="up" title="Module code" href="../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> pycobra
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pycobra</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>pycobra.cobra</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pycobra.cobra</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Licensed under the MIT License - https://opensource.org/licenses/MIT</span>
+
+<span class="kn">from</span> <span class="nn">sklearn</span> <span class="k">import</span> <span class="n">linear_model</span> 
+<span class="kn">from</span> <span class="nn">sklearn.tree</span> <span class="k">import</span> <span class="n">DecisionTreeRegressor</span>
+<span class="kn">from</span> <span class="nn">sklearn.ensemble</span> <span class="k">import</span> <span class="n">RandomForestRegressor</span>
+<span class="kn">from</span> <span class="nn">sklearn.utils</span> <span class="k">import</span> <span class="n">shuffle</span>
+<span class="kn">from</span> <span class="nn">sklearn.base</span> <span class="k">import</span> <span class="n">BaseEstimator</span>
+<span class="kn">from</span> <span class="nn">sklearn.utils.validation</span> <span class="k">import</span> <span class="n">check_X_y</span><span class="p">,</span> <span class="n">check_array</span><span class="p">,</span> <span class="n">check_is_fitted</span>
+
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">numbers</span>
+
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;pycobra.cobra&#39;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Cobra"><a class="viewcode-back" href="../../pycobra.html#pycobra.cobra.Cobra">[docs]</a><span class="k">class</span> <span class="nc">Cobra</span><span class="p">(</span><span class="n">BaseEstimator</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    COBRA - Nonlinear Aggregation of Predictors.</span>
+<span class="sd">    </span>
+<span class="sd">    Based on the paper by Biau, Guedj et al [2016], this is a pythonic implementation of the original COBRA code.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        random_state: integer or a numpy.random.RandomState object. </span>
+<span class="sd">            Set the state of the random number generator to pass on to shuffle and loading machines, to ensure</span>
+<span class="sd">            reproducibility of your experiments, for example.</span>
+<span class="sd">            </span>
+<span class="sd">        Attributes</span>
+<span class="sd">        ----------</span>
+<span class="sd">        </span>
+<span class="sd">        machines: A dictionary which maps machine names to the machine objects.</span>
+<span class="sd">                The machine object must have a predict method for it to be used during aggregation.</span>
+
+<span class="sd">        machine_predictions: A dictionary which maps machine name to it&#39;s predictions over X_l</span>
+<span class="sd">                This value is used to determine which points from y_l are used to aggregate.</span>
+<span class="sd">        </span>
+<span class="sd">        all_predictions: numpy array with all the predictions, to be used for epsilon manipulation.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">machines</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span> <span class="o">=</span> <span class="n">random_state</span>
+
+<div class="viewcode-block" id="Cobra.fit"><a class="viewcode-back" href="../../pycobra.html#pycobra.cobra.Cobra.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">X_k</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">X_l</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y_k</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y_l</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">X_epsilon</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y_epsilon</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">line_points</span><span class="o">=</span><span class="mi">80</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        epsilon: float, optional</span>
+<span class="sd">            Epsilon value described in the paper which determines which points are selected for the aggregate.</span>
+<span class="sd">            Default value is determined by running a grid if test data is provided. </span>
+<span class="sd">            If not, a mean of the possible distances is chosen.</span>
+<span class="sd">        </span>
+<span class="sd">        default: bool, optional</span>
+<span class="sd">            If set as true then sets up COBRA with default machines and splitting.</span>
+
+<span class="sd">        X_k : shape = [n_samples, n_features]</span>
+<span class="sd">            Training data which is used to train the machines loaded into COBRA. </span>
+<span class="sd">            Can be loaded directly into COBRA; if not, the split_data method is used as default.</span>
+
+<span class="sd">        y_k : array-like, shape = [n_samples]</span>
+<span class="sd">            Target values used to train the machines loaded into COBRA.</span>
+
+<span class="sd">        X_l : shape = [n_samples, n_features]</span>
+<span class="sd">            Training data which is used during the aggregation of COBRA.</span>
+<span class="sd">            Can be loaded directly into COBRA; if not, the split_data method is used as default.</span>
+
+<span class="sd">        y_l : array-like, shape = [n_samples] </span>
+<span class="sd">            Target values which are actually used in the aggregation of COBRA.</span>
+
+<span class="sd">        X_epsilon: shape = [n_samples, n_features]</span>
+<span class="sd">            Testing data used to determine optimal data-dependant epsilon value if it is not passed.</span>
+
+<span class="sd">        y_epsilon : array-like, shape = [n_samples] </span>
+<span class="sd">            Target values used to determine optimal data-dependant epsilon value if it is not passed.</span>
+
+<span class="sd">        line_points: integer, optional</span>
+<span class="sd">            Number of epsilon values to traverse the grid if epsilon is not passed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">check_X_y</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">X</span> <span class="o">=</span> <span class="n">X</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">y</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">X_k</span> <span class="o">=</span> <span class="n">X_k</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">X_l</span> <span class="o">=</span> <span class="n">X_l</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">y_k</span> <span class="o">=</span> <span class="n">y_k</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">y_l</span> <span class="o">=</span> <span class="n">y_l</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">epsilon</span> <span class="o">=</span> <span class="n">epsilon</span>
+
+        <span class="c1"># set-up COBRA with default machines</span>
+        <span class="k">if</span> <span class="n">default</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">split_data</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">load_default</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">load_machine_predictions</span><span class="p">()</span>
+        <span class="c1"># auto epsilon</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">epsilon</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">X_epsilon</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">pycobra.diagnostics</span> <span class="k">import</span> <span class="n">Diagnostics</span>
+            <span class="n">cobra_diagnostics</span> <span class="o">=</span> <span class="n">Diagnostics</span><span class="p">(</span><span class="n">cobra</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">epsilon</span> <span class="o">=</span> <span class="n">cobra_diagnostics</span><span class="o">.</span><span class="n">optimal_epsilon</span><span class="p">(</span><span class="n">X_epsilon</span><span class="p">,</span> <span class="n">y_epsilon</span><span class="p">,</span> <span class="n">line_points</span><span class="o">=</span><span class="n">line_points</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">epsilon</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">a</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">all_predictions</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">all_predictions</span><span class="p">)</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">size</span><span class="p">)</span> <span class="k">if</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span> <span class="o">&lt;</span> <span class="n">size</span><span class="p">]</span>
+            <span class="n">emin</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
+            <span class="n">emax</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">-</span> <span class="nb">min</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">epsilon</span> <span class="o">=</span> <span class="p">(</span><span class="n">emin</span> <span class="o">+</span> <span class="n">emax</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="Cobra.pred"><a class="viewcode-back" href="../../pycobra.html#pycobra.cobra.Cobra.pred">[docs]</a>    <span class="k">def</span> <span class="nf">pred</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">info</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Performs the COBRA aggregation scheme, used in predict method.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        X: array-like, [n_features]</span>
+
+<span class="sd">        M: int, optional</span>
+<span class="sd">            M or alpha refers to the number of machines the prediction must be close to be considered during aggregation.</span>
+
+<span class="sd">        info: boolean, optional</span>
+<span class="sd">            If info is true the list of points selected in the aggregation is returned.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        avg: prediction</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># dictionary mapping machine to points selected</span>
+        <span class="n">select</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">machine</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">machines</span><span class="p">:</span>
+            <span class="c1"># machine prediction</span>
+            <span class="n">val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">machines</span><span class="p">[</span><span class="n">machine</span><span class="p">]</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+            <span class="n">select</span><span class="p">[</span><span class="n">machine</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+            <span class="c1"># iterating from l to n</span>
+            <span class="c1"># replace with numpy iteration</span>
+            <span class="k">for</span> <span class="n">count</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">X_l</span><span class="p">)):</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="c1"># if value is close to prediction, select the indice</span>
+                    <span class="k">if</span> <span class="n">math</span><span class="o">.</span><span class="n">fabs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">machine_predictions</span><span class="p">[</span><span class="n">machine</span><span class="p">][</span><span class="n">count</span><span class="p">]</span> <span class="o">-</span> <span class="n">val</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">epsilon</span><span class="p">:</span>
+                        <span class="n">select</span><span class="p">[</span><span class="n">machine</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">count</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Value Error&quot;</span><span class="p">)</span>
+                    <span class="k">continue</span>
+
+        <span class="n">points</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># count is the indice number. </span>
+        <span class="k">for</span> <span class="n">count</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">X_l</span><span class="p">)):</span>
+            <span class="c1"># row check is number of machines which picked up a particular point</span>
+            <span class="n">row_check</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">machine</span> <span class="ow">in</span> <span class="n">select</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">count</span> <span class="ow">in</span> <span class="n">select</span><span class="p">[</span><span class="n">machine</span><span class="p">]:</span>
+                    <span class="n">row_check</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">row_check</span> <span class="o">==</span> <span class="n">M</span><span class="p">:</span>
+                <span class="n">points</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">count</span><span class="p">)</span>    
+        
+        <span class="c1"># if no points are selected, return 0</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">info</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;No points were selected, prediction is 0&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="k">return</span> <span class="mi">0</span>
+
+        <span class="c1"># aggregate</span>
+        <span class="n">avg</span> <span class="o">=</span> <span class="mi">0</span> 
+        <span class="k">for</span> <span class="n">point</span> <span class="ow">in</span> <span class="n">points</span><span class="p">:</span>
+            <span class="n">avg</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">y_l</span><span class="p">[</span><span class="n">point</span><span class="p">]</span>
+        <span class="n">avg</span> <span class="o">=</span> <span class="n">avg</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">info</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">avg</span><span class="p">,</span> <span class="n">points</span>
+        <span class="k">return</span> <span class="n">avg</span></div>
+
+<div class="viewcode-block" id="Cobra.predict"><a class="viewcode-back" href="../../pycobra.html#pycobra.cobra.Cobra.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">M</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">info</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Performs the COBRA aggregation scheme, calls pred.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        X: array-like, [n_features]</span>
+
+<span class="sd">        M: int, optional</span>
+<span class="sd">            M or alpha refers to the number of machines the prediction must be close to be considered during aggregation.</span>
+
+<span class="sd">        info: boolean, optional</span>
+<span class="sd">            If info is true the list of points selected in the aggregation is returned.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        result: prediction</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># sets M as the total number of machines as a default value</span>
+
+        <span class="n">X</span> <span class="o">=</span> <span class="n">check_array</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">M</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">M</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">machines</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">X</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pred</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="n">info</span><span class="o">=</span><span class="n">info</span><span class="p">,</span> <span class="n">M</span><span class="o">=</span><span class="n">M</span><span class="p">)</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">X</span><span class="p">))</span>
+        <span class="n">avg_points</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">vector</span> <span class="ow">in</span> <span class="n">X</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">info</span><span class="p">:</span>
+                <span class="n">result</span><span class="p">[</span><span class="n">index</span><span class="p">],</span> <span class="n">points</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pred</span><span class="p">(</span><span class="n">vector</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="n">info</span><span class="o">=</span><span class="n">info</span><span class="p">,</span> <span class="n">M</span><span class="o">=</span><span class="n">M</span><span class="p">)</span>
+                <span class="n">avg_points</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">result</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pred</span><span class="p">(</span><span class="n">vector</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="n">info</span><span class="o">=</span><span class="n">info</span><span class="p">,</span> <span class="n">M</span><span class="o">=</span><span class="n">M</span><span class="p">)</span>              
+            <span class="n">index</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">if</span> <span class="n">info</span><span class="p">:</span>
+            <span class="n">avg_points</span> <span class="o">=</span> <span class="n">avg_points</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">X_array</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">result</span><span class="p">,</span> <span class="n">avg_points</span>
+
+        <span class="k">return</span> <span class="n">result</span></div>
+
+
+<div class="viewcode-block" id="Cobra.split_data"><a class="viewcode-back" href="../../pycobra.html#pycobra.cobra.Cobra.split_data">[docs]</a>    <span class="k">def</span> <span class="nf">split_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">l</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">shuffle_data</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Split the data into different parts for training machines, and for aggregation.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        k : int, optional</span>
+<span class="sd">            k determines D_k, which is the data used to the train the machines.</span>
+
+<span class="sd">        l: int, optional</span>
+<span class="sd">            l determines D_l, which is the data used in the aggregation.</span>
+
+<span class="sd">        shuffle: bool, optional</span>
+<span class="sd">            Boolean value to decide to shuffle the data before splitting.</span>
+
+<span class="sd">        random_state: numpy random_state object or int</span>
+<span class="sd">            Random seed if shuffling.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">shuffle_data</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">shuffle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">k</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">l</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">k</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="n">l</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">X_k</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="p">[:</span><span class="n">k</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">X_l</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="p">[</span><span class="n">k</span><span class="p">:</span><span class="n">l</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">y_k</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">[:</span><span class="n">k</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">y_l</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="n">k</span><span class="p">:</span><span class="n">l</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="Cobra.load_default"><a class="viewcode-back" href="../../pycobra.html#pycobra.cobra.Cobra.load_default">[docs]</a>    <span class="k">def</span> <span class="nf">load_default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">machine_list</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;lasso&#39;</span><span class="p">,</span> <span class="s1">&#39;tree&#39;</span><span class="p">,</span> <span class="s1">&#39;ridge&#39;</span><span class="p">,</span> <span class="s1">&#39;random_forest&#39;</span><span class="p">]):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Loads 4 different scikit-learn regressors by default. </span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        machine_list: optional, list of strings</span>
+<span class="sd">            List of default machine names to be loaded. </span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">machine</span> <span class="ow">in</span> <span class="n">machine_list</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">machine</span> <span class="o">==</span> <span class="s1">&#39;lasso&#39;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">machines</span><span class="p">[</span><span class="s1">&#39;lasso&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">linear_model</span><span class="o">.</span><span class="n">LassoCV</span><span class="p">(</span><span class="n">random_state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">X_k</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y_k</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">machine</span> <span class="o">==</span> <span class="s1">&#39;tree&#39;</span><span class="p">:</span>  
+                <span class="bp">self</span><span class="o">.</span><span class="n">machines</span><span class="p">[</span><span class="s1">&#39;tree&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">DecisionTreeRegressor</span><span class="p">(</span><span class="n">random_state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">X_k</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y_k</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">machine</span> <span class="o">==</span> <span class="s1">&#39;ridge&#39;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">machines</span><span class="p">[</span><span class="s1">&#39;ridge&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">linear_model</span><span class="o">.</span><span class="n">RidgeCV</span><span class="p">()</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">X_k</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y_k</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">machine</span> <span class="o">==</span> <span class="s1">&#39;random_forest&#39;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">machines</span><span class="p">[</span><span class="s1">&#39;random_forest&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">RandomForestRegressor</span><span class="p">(</span><span class="n">random_state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">X_k</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y_k</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Cobra.load_machine"><a class="viewcode-back" href="../../pycobra.html#pycobra.cobra.Cobra.load_machine">[docs]</a>    <span class="k">def</span> <span class="nf">load_machine</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">machine_name</span><span class="p">,</span> <span class="n">machine</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds a machine to be used during the aggregation strategy.</span>
+<span class="sd">        The machine object must have been trained using X_k and y_k, and must have a &#39;predict()&#39; method.</span>
+<span class="sd">        After the machine is loaded, for it to be used during aggregation, load_machine_predictions must be run.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        machine_name : string</span>
+<span class="sd">            Name of the machine you are loading</span>
+
+<span class="sd">        machine: machine/regressor object</span>
+<span class="sd">            The regressor machine object which is mapped to the machine_name</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        self : returns an instance of self.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">machines</span><span class="p">[</span><span class="n">machine_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">machine</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+
+<div class="viewcode-block" id="Cobra.load_machine_predictions"><a class="viewcode-back" href="../../pycobra.html#pycobra.cobra.Cobra.load_machine_predictions">[docs]</a>    <span class="k">def</span> <span class="nf">load_machine_predictions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">predictions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Stores the trained machines&#39; predicitons on D_l in a dictionary, to be used for predictions.</span>
+<span class="sd">        Should be run after all the machines to be used for aggregation is loaded.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------        </span>
+
+<span class="sd">        predictions: dictionary, optional</span>
+<span class="sd">            A pre-existing machine:predictions dictionary can also be loaded.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">machine_predictions</span><span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">all_predictions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+        <span class="k">if</span> <span class="n">predictions</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">machine</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">machines</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">machine_predictions</span><span class="p">[</span><span class="n">machine</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">machines</span><span class="p">[</span><span class="n">machine</span><span class="p">]</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">X_l</span><span class="p">)</span>
+                <span class="c1"># all_predictions is used in the diagnostics class, and for initialising epsilon</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">all_predictions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">all_predictions</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">machine_predictions</span><span class="p">[</span><span class="n">machine</span><span class="p">])</span>     
+
+        <span class="k">if</span> <span class="n">predictions</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">machine_predictions</span> <span class="o">=</span> <span class="n">predictions</span></div></div>
+
+
+</pre></div>
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Bhargav Srinivasa Desikan, Benjamin Guedj.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'0.1.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

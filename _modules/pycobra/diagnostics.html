@@ -1,0 +1,611 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pycobra.diagnostics &mdash; pycobra 0.1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../genindex.html"/>
+        <link rel="search" title="Search" href="../../search.html"/>
+    <link rel="top" title="pycobra 0.1.0 documentation" href="../../index.html"/>
+        <link rel="up" title="Module code" href="../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> pycobra
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pycobra</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>pycobra.diagnostics</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pycobra.diagnostics</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Licensed under the MIT License - https://opensource.org/licenses/MIT</span>
+
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="k">import</span> <span class="n">mean_squared_error</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">pycobra.cobra</span> <span class="k">import</span> <span class="n">Cobra</span>
+<span class="kn">import</span> <span class="nn">math</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;pycobra.diagnostics&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Diagnostics"><a class="viewcode-back" href="../../pycobra.html#pycobra.diagnostics.Diagnostics">[docs]</a><span class="k">class</span> <span class="nc">Diagnostics</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Optimization of parameters, and error details. </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span> <span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cobra</span><span class="p">,</span> <span class="n">X_test</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y_test</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">load_MSE</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        cobra: pycobra.cobra.Cobra object</span>
+<span class="sd">            cobra object on which we want to run our analysis on.</span>
+
+<span class="sd">        X_test : array-like, shape = [n_samples, n_features], optional.</span>
+<span class="sd">            Testing data.</span>
+
+<span class="sd">        y_test : array-like, shape = [n_samples], optional.</span>
+<span class="sd">            Test data target values.</span>
+<span class="sd">        </span>
+<span class="sd">        load_MSE: bool, optional</span>
+<span class="sd">            loads MSE and error bound values into diagnostics object.</span>
+
+<span class="sd">        random_state: integer or a numpy.random.RandomState object. </span>
+<span class="sd">            Set the state of the random number generator to pass on to shuffle and loading machines, to ensure</span>
+<span class="sd">            reproducibility of your experiments, for example.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cobra</span> <span class="o">=</span> <span class="n">cobra</span>
+        <span class="c1"># X_test and y_test is only to compare MSEs of machines.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">X_test</span> <span class="o">=</span> <span class="n">X_test</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">y_test</span> <span class="o">=</span> <span class="n">y_test</span>
+
+        <span class="k">if</span> <span class="n">load_MSE</span> <span class="ow">and</span> <span class="n">X_test</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">load_MSE</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span> <span class="o">=</span> <span class="n">random_state</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cobra</span><span class="o">.</span><span class="n">random_state</span>
+
+
+<div class="viewcode-block" id="Diagnostics.load_MSE"><a class="viewcode-back" href="../../pycobra.html#pycobra.diagnostics.Diagnostics.load_MSE">[docs]</a>    <span class="k">def</span> <span class="nf">load_MSE</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes MSE and error bound for each Machine based on test data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">machine_test_results</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">machine_MSE</span> <span class="o">=</span> <span class="p">{}</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">machine_test_results</span><span class="p">[</span><span class="s2">&quot;COBRA&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cobra</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">X_test</span><span class="p">)</span>
+        <span class="c1"># add MSE</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">machine_MSE</span><span class="p">[</span><span class="s2">&quot;COBRA&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mean_squared_error</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y_test</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">machine_test_results</span><span class="p">[</span><span class="s2">&quot;COBRA&quot;</span><span class="p">])</span>
+
+        <span class="k">for</span> <span class="n">machine</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cobra</span><span class="o">.</span><span class="n">machines</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">machine_test_results</span><span class="p">[</span><span class="n">machine</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cobra</span><span class="o">.</span><span class="n">machines</span><span class="p">[</span><span class="n">machine</span><span class="p">]</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">X_test</span><span class="p">)</span>
+            <span class="c1"># add MSE</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">machine_MSE</span><span class="p">[</span><span class="n">machine</span><span class="p">]</span> <span class="o">=</span> <span class="n">mean_squared_error</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y_test</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">machine_test_results</span><span class="p">[</span><span class="n">machine</span><span class="p">])</span>
+
+        <span class="c1"># COBRA bound error</span>
+        <span class="n">power</span> <span class="o">=</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">/</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cobra</span><span class="o">.</span><span class="n">machines</span><span class="p">)</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">error_bound</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cobra</span><span class="o">.</span><span class="n">X_l</span><span class="p">),</span> <span class="n">power</span><span class="p">)</span> </div>
+
+
+<div class="viewcode-block" id="Diagnostics.optimal_alpha"><a class="viewcode-back" href="../../pycobra.html#pycobra.diagnostics.Diagnostics.optimal_alpha">[docs]</a>    <span class="k">def</span> <span class="nf">optimal_alpha</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">single</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">info</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Find the optimal alpha for testing data.</span>
+
+<span class="sd">        Parameteres</span>
+<span class="sd">        -----------</span>
+
+<span class="sd">        X_test: array-like, [n_features]</span>
+<span class="sd">            Vector for which we want optimal alpha values</span>
+<span class="sd">        </span>
+<span class="sd">        y_test: float</span>
+<span class="sd">            Target value for query to compare.</span>
+<span class="sd">         </span>
+<span class="sd">        single: boolean, optional</span>
+<span class="sd">            Option to calculate optimal alpha for a single query point instead.</span>
+
+<span class="sd">        info: bool, optional</span>
+<span class="sd">            Returns MSE dictionary for each alpha value</span>
+
+<span class="sd">        epsilon: float, optional</span>
+<span class="sd">            fixed epsilon value to help determine optimal alpha.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        MSE: dictionary mapping alpha with mean squared errors</span>
+<span class="sd">        opt: optimal alpha combination</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">epsilon</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">epsilon</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cobra</span><span class="o">.</span><span class="n">epsilon</span>
+
+        <span class="n">MSE</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">alpha</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cobra</span><span class="o">.</span><span class="n">machines</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">machine</span> <span class="o">=</span> <span class="n">Cobra</span><span class="p">(</span><span class="n">random_state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">)</span>
+            <span class="n">machine</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cobra</span><span class="o">.</span><span class="n">X</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cobra</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span><span class="n">epsilon</span><span class="p">)</span>
+            <span class="c1"># for a single data point</span>
+            <span class="k">if</span> <span class="n">single</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="n">machine</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">M</span><span class="o">=</span><span class="n">alpha</span><span class="p">)</span> 
+                <span class="n">MSE</span><span class="p">[</span><span class="n">alpha</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">y</span> <span class="o">-</span> <span class="n">result</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">results</span> <span class="o">=</span> <span class="n">machine</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">M</span><span class="o">=</span><span class="n">alpha</span><span class="p">)</span>
+                <span class="n">MSE</span><span class="p">[</span><span class="n">alpha</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">mean_squared_error</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">results</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">info</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">MSE</span>      
+        <span class="n">opt</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">MSE</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">MSE</span><span class="o">.</span><span class="n">get</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">opt</span><span class="p">,</span> <span class="n">MSE</span><span class="p">[</span><span class="n">opt</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="Diagnostics.optimal_machines"><a class="viewcode-back" href="../../pycobra.html#pycobra.diagnostics.Diagnostics.optimal_machines">[docs]</a>    <span class="k">def</span> <span class="nf">optimal_machines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">single</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">info</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Find the optimal combination of machines for testing data.</span>
+
+<span class="sd">        Parameteres</span>
+<span class="sd">        -----------</span>
+
+<span class="sd">        X_test: array-like, [n_features]</span>
+<span class="sd">            Vector for which we want optimal machine combinations.</span>
+<span class="sd">        </span>
+<span class="sd">        y_test: float</span>
+<span class="sd">            Target value for query to compare.</span>
+<span class="sd">         </span>
+<span class="sd">        single: boolean, optional</span>
+<span class="sd">            Option to calculate optimal machine combinations for a single query point instead.</span>
+
+<span class="sd">        info: bool, optional</span>
+<span class="sd">            Returns MSE dictionary for each machine combination value</span>
+
+<span class="sd">        epsilon: float, optional</span>
+<span class="sd">            fixed epsilon value to help determine optimal machines.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        MSE: dictionary mapping machines with mean squared errors</span>
+<span class="sd">        opt: optimal machines combination</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">epsilon</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">epsilon</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cobra</span><span class="o">.</span><span class="n">epsilon</span>
+
+        <span class="n">n_machines</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cobra</span><span class="o">.</span><span class="n">machines</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">MSE</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">num</span> <span class="ow">in</span> <span class="n">n_machines</span><span class="p">:</span>
+            <span class="n">machine_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cobra</span><span class="o">.</span><span class="n">machines</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+            <span class="n">use</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">combinations</span><span class="p">(</span><span class="n">machine_names</span><span class="p">,</span> <span class="n">num</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">combination</span> <span class="ow">in</span> <span class="n">use</span><span class="p">:</span>
+                <span class="n">machine</span> <span class="o">=</span> <span class="n">Cobra</span><span class="p">(</span><span class="n">random_state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">)</span>
+                <span class="n">machine</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cobra</span><span class="o">.</span><span class="n">X</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cobra</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span><span class="n">epsilon</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="n">machine</span><span class="o">.</span><span class="n">split_data</span><span class="p">()</span>
+                <span class="n">machine</span><span class="o">.</span><span class="n">load_default</span><span class="p">(</span><span class="n">machine_list</span><span class="o">=</span><span class="n">combination</span><span class="p">)</span>
+                <span class="n">machine</span><span class="o">.</span><span class="n">load_machine_predictions</span><span class="p">()</span> 
+                <span class="k">if</span> <span class="n">single</span><span class="p">:</span>
+                    <span class="n">result</span> <span class="o">=</span> <span class="n">machine</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span> 
+                    <span class="n">MSE</span><span class="p">[</span><span class="n">combination</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">y</span> <span class="o">-</span> <span class="n">result</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">results</span> <span class="o">=</span> <span class="n">machine</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+                    <span class="n">MSE</span><span class="p">[</span><span class="n">combination</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">mean_squared_error</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">results</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">info</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">MSE</span>
+        <span class="n">opt</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">MSE</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">MSE</span><span class="o">.</span><span class="n">get</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">opt</span><span class="p">,</span> <span class="n">MSE</span><span class="p">[</span><span class="n">opt</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="Diagnostics.optimal_epsilon"><a class="viewcode-back" href="../../pycobra.html#pycobra.diagnostics.Diagnostics.optimal_epsilon">[docs]</a>    <span class="k">def</span> <span class="nf">optimal_epsilon</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">line_points</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">info</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Find the optimal combination epsilon value for X_test</span>
+
+<span class="sd">        Parameteres</span>
+<span class="sd">        -----------</span>
+
+<span class="sd">        X_test: array-like, [n_features]</span>
+<span class="sd">            Vector for which we want for optimal epsilon.</span>
+<span class="sd">        </span>
+<span class="sd">        y_test: float</span>
+<span class="sd">            Target value for query to compare.</span>
+
+<span class="sd">        line_points: integer, optional</span>
+<span class="sd">            Number of epsilon values to traverse the grid.</span>
+
+<span class="sd">        info: bool, optional</span>
+<span class="sd">            Returns MSE dictionary for each epsilon value.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        MSE: dictionary mapping epsilon with mean squared errors</span>
+<span class="sd">        opt: optimal epsilon value</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">a</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cobra</span><span class="o">.</span><span class="n">all_predictions</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cobra</span><span class="o">.</span><span class="n">all_predictions</span><span class="p">)</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">size</span><span class="p">)</span> <span class="k">if</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span> <span class="o">&lt;</span> <span class="n">size</span><span class="p">]</span>
+        <span class="n">emin</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
+        <span class="n">emax</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">-</span> <span class="nb">min</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+        <span class="n">erange</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">emin</span><span class="p">,</span> <span class="n">emax</span><span class="p">,</span> <span class="n">line_points</span><span class="p">)</span>
+
+        <span class="n">MSE</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">epsilon</span> <span class="ow">in</span> <span class="n">erange</span><span class="p">:</span>
+            <span class="n">machine</span> <span class="o">=</span> <span class="n">Cobra</span><span class="p">(</span><span class="n">random_state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">)</span>
+            <span class="n">machine</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cobra</span><span class="o">.</span><span class="n">X</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cobra</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span><span class="n">epsilon</span><span class="p">)</span>
+            <span class="n">results</span> <span class="o">=</span> <span class="n">machine</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+            <span class="n">MSE</span><span class="p">[</span><span class="n">epsilon</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">mean_squared_error</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">results</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">info</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">MSE</span>
+        <span class="n">opt</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">MSE</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">MSE</span><span class="o">.</span><span class="n">get</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">opt</span><span class="p">,</span> <span class="n">MSE</span><span class="p">[</span><span class="n">opt</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="Diagnostics.optimal_split"><a class="viewcode-back" href="../../pycobra.html#pycobra.diagnostics.Diagnostics.optimal_split">[docs]</a>    <span class="k">def</span> <span class="nf">optimal_split</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">split</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">info</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">graph</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Find the optimal combination split (D_k, D_l) for fixed epsilon value.</span>
+
+<span class="sd">        Parameteres</span>
+<span class="sd">        -----------</span>
+
+<span class="sd">        X: array-like, [n_features]</span>
+<span class="sd">            Vector for which we want for optimal split.</span>
+<span class="sd">        </span>
+<span class="sd">        y: float</span>
+<span class="sd">            Target value for query to compare.</span>
+
+<span class="sd">        epsilon: float, optional.</span>
+<span class="sd">            fixed epsilon value to help determine optimal machines.</span>
+
+<span class="sd">        split: list, optional.</span>
+<span class="sd">            D_k, D_l break-up to calculate MSE</span>
+
+<span class="sd">        info: bool, optional.</span>
+<span class="sd">            Returns MSE dictionary for each split.</span>
+
+<span class="sd">        graph: bool, optional.</span>
+<span class="sd">            Plots graph of MSE vs split</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        MSE: dictionary mapping split with mean squared errors</span>
+<span class="sd">        opt: optimal epsilon value</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">epsilon</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">epsilon</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cobra</span><span class="o">.</span><span class="n">epsilon</span>
+
+        <span class="k">if</span> <span class="n">split</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">split</span> <span class="o">=</span> <span class="p">[(</span><span class="mf">0.20</span><span class="p">,</span> <span class="mf">0.80</span><span class="p">),</span> <span class="p">(</span><span class="mf">0.40</span><span class="p">,</span> <span class="mf">0.60</span><span class="p">),</span> <span class="p">(</span><span class="mf">0.50</span><span class="p">,</span> <span class="mf">0.50</span><span class="p">),</span> <span class="p">(</span><span class="mf">0.60</span><span class="p">,</span> <span class="mf">0.40</span><span class="p">),</span> <span class="p">(</span><span class="mf">0.80</span><span class="p">,</span> <span class="mf">0.20</span><span class="p">)]</span>
+
+        <span class="n">MSE</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">split</span><span class="p">:</span>
+            <span class="n">machine</span> <span class="o">=</span> <span class="n">Cobra</span><span class="p">(</span><span class="n">random_state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">)</span>
+            <span class="n">machine</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cobra</span><span class="o">.</span><span class="n">X</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cobra</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span><span class="n">epsilon</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">machine</span><span class="o">.</span><span class="n">split_data</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">k</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cobra</span><span class="o">.</span><span class="n">X</span><span class="p">)),</span> <span class="nb">int</span><span class="p">((</span><span class="n">k</span> <span class="o">+</span> <span class="n">l</span><span class="p">)</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cobra</span><span class="o">.</span><span class="n">X</span><span class="p">)))</span>
+            <span class="n">machine</span><span class="o">.</span><span class="n">load_default</span><span class="p">()</span>
+            <span class="n">machine</span><span class="o">.</span><span class="n">load_machine_predictions</span><span class="p">()</span> 
+            <span class="n">results</span> <span class="o">=</span> <span class="n">machine</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+            <span class="n">MSE</span><span class="p">[(</span><span class="n">k</span><span class="p">,</span> <span class="n">l</span><span class="p">)]</span> <span class="o">=</span> <span class="p">(</span><span class="n">mean_squared_error</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">results</span><span class="p">))</span>            
+
+        <span class="k">if</span> <span class="n">graph</span><span class="p">:</span>
+            <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+            <span class="n">ratio</span><span class="p">,</span> <span class="n">mse</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">split</span><span class="p">:</span>
+                <span class="n">ratio</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">mse</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">MSE</span><span class="p">[</span><span class="n">value</span><span class="p">])</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ratio</span><span class="p">,</span> <span class="n">mse</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">info</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">MSE</span>
+        <span class="n">opt</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">MSE</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">MSE</span><span class="o">.</span><span class="n">get</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">opt</span><span class="p">,</span> <span class="n">MSE</span><span class="p">[</span><span class="n">opt</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="Diagnostics.optimal_alpha_grid"><a class="viewcode-back" href="../../pycobra.html#pycobra.diagnostics.Diagnostics.optimal_alpha_grid">[docs]</a>    <span class="k">def</span> <span class="nf">optimal_alpha_grid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">line_points</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">info</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Find the optimal epsilon and alpha for a single query point.</span>
+
+<span class="sd">        Parameteres</span>
+<span class="sd">        -----------</span>
+
+<span class="sd">        X_test: array-like, [n_features]</span>
+<span class="sd">            Vector for which we want optimal alpha and epsilon values</span>
+<span class="sd">        </span>
+<span class="sd">        y_test: float</span>
+<span class="sd">            Target value for query to compare.</span>
+<span class="sd">         </span>
+<span class="sd">        line_points: integer, optional</span>
+<span class="sd">            Number of epsilon values to traverse the grid.</span>
+
+<span class="sd">        info: bool, optional</span>
+<span class="sd">            Returns MSE dictionary for each epsilon/alpha value</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        MSE: dictionary mapping (alpha, epsilon) with mean squared errors</span>
+<span class="sd">        opt: optimal epislon/alpha combination</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># code to find maximum and minimum distance between predictions to create grid</span>
+        <span class="n">a</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cobra</span><span class="o">.</span><span class="n">all_predictions</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cobra</span><span class="o">.</span><span class="n">all_predictions</span><span class="p">)</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">size</span><span class="p">)</span> <span class="k">if</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span> <span class="o">&lt;</span> <span class="n">size</span><span class="p">]</span>
+        <span class="n">emin</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
+        <span class="n">emax</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">-</span> <span class="nb">min</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+        <span class="n">erange</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">emin</span><span class="p">,</span> <span class="n">emax</span><span class="p">,</span> <span class="n">line_points</span><span class="p">)</span>
+        <span class="n">n_machines</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cobra</span><span class="o">.</span><span class="n">machines</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">MSE</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># looping over epsilon and alpha values</span>
+        <span class="k">for</span> <span class="n">epsilon</span> <span class="ow">in</span> <span class="n">erange</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">num</span> <span class="ow">in</span> <span class="n">n_machines</span><span class="p">:</span>
+                <span class="n">machine</span> <span class="o">=</span> <span class="n">Cobra</span><span class="p">(</span><span class="n">random_state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">)</span>
+                <span class="n">machine</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cobra</span><span class="o">.</span><span class="n">X</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cobra</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span><span class="n">epsilon</span><span class="p">)</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="n">machine</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="n">M</span><span class="o">=</span><span class="n">num</span><span class="p">)</span>
+                <span class="n">MSE</span><span class="p">[(</span><span class="n">num</span><span class="p">,</span> <span class="n">epsilon</span><span class="p">)]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">y</span> <span class="o">-</span> <span class="n">result</span><span class="p">)</span>
+    
+        <span class="k">if</span> <span class="n">info</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">MSE</span>
+
+        <span class="n">opt</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">MSE</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">MSE</span><span class="o">.</span><span class="n">get</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">opt</span><span class="p">,</span> <span class="n">MSE</span><span class="p">[</span><span class="n">opt</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="Diagnostics.optimal_machines_grid"><a class="viewcode-back" href="../../pycobra.html#pycobra.diagnostics.Diagnostics.optimal_machines_grid">[docs]</a>    <span class="k">def</span> <span class="nf">optimal_machines_grid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">line_points</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">info</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Find the optimal epsilon and machine-combination for a single query point.</span>
+
+<span class="sd">        Parameteres</span>
+<span class="sd">        -----------</span>
+
+<span class="sd">        X_test: array-like, [n_features]</span>
+<span class="sd">            Vector for which we want optimal machines and epsilon values</span>
+<span class="sd">        </span>
+<span class="sd">        y_test: float</span>
+<span class="sd">            Target value for query to compare.</span>
+<span class="sd">         </span>
+<span class="sd">        line_points: integer, optional</span>
+<span class="sd">            Number of epsilon values to traverse the grid.</span>
+
+<span class="sd">        info: bool, optional</span>
+<span class="sd">            Returns MSE dictionary for each epsilon/machine value.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        MSE: dictionary mapping (machine combination, epsilon) with mean squared errors</span>
+<span class="sd">        opt: optimal epislon/machine combination</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># code to find maximum and minimum distance between predictions to create grid</span>
+        <span class="n">a</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cobra</span><span class="o">.</span><span class="n">all_predictions</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cobra</span><span class="o">.</span><span class="n">all_predictions</span><span class="p">)</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">size</span><span class="p">)</span> <span class="k">if</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span> <span class="o">&lt;</span> <span class="n">size</span><span class="p">]</span>
+        <span class="n">emin</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
+        <span class="n">emax</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">-</span> <span class="nb">min</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+        <span class="n">erange</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">emin</span><span class="p">,</span> <span class="n">emax</span><span class="p">,</span> <span class="n">line_points</span><span class="p">)</span>
+        <span class="n">n_machines</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cobra</span><span class="o">.</span><span class="n">machines</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">MSE</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">for</span> <span class="n">epsilon</span> <span class="ow">in</span> <span class="n">erange</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">num</span> <span class="ow">in</span> <span class="n">n_machines</span><span class="p">:</span>
+                <span class="n">machine_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cobra</span><span class="o">.</span><span class="n">machines</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+                <span class="n">use</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">combinations</span><span class="p">(</span><span class="n">machine_names</span><span class="p">,</span> <span class="n">num</span><span class="p">))</span>
+                <span class="k">for</span> <span class="n">combination</span> <span class="ow">in</span> <span class="n">use</span><span class="p">:</span>
+                    <span class="n">machine</span> <span class="o">=</span> <span class="n">Cobra</span><span class="p">(</span><span class="n">random_state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">)</span>
+                    <span class="n">machine</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cobra</span><span class="o">.</span><span class="n">X</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cobra</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span><span class="n">epsilon</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                    <span class="n">machine</span><span class="o">.</span><span class="n">split_data</span><span class="p">()</span>
+                    <span class="n">machine</span><span class="o">.</span><span class="n">load_default</span><span class="p">(</span><span class="n">machine_list</span><span class="o">=</span><span class="n">combination</span><span class="p">)</span>
+                    <span class="n">machine</span><span class="o">.</span><span class="n">load_machine_predictions</span><span class="p">()</span> 
+                    <span class="n">result</span> <span class="o">=</span> <span class="n">machine</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+                    <span class="n">MSE</span><span class="p">[(</span><span class="n">combination</span><span class="p">,</span> <span class="n">epsilon</span><span class="p">)]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">y</span> <span class="o">-</span> <span class="n">result</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">info</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">MSE</span>      
+        <span class="n">opt</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">MSE</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">MSE</span><span class="o">.</span><span class="n">get</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">opt</span><span class="p">,</span> <span class="n">MSE</span><span class="p">[</span><span class="n">opt</span><span class="p">]</span></div></div>
+
+</pre></div>
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Bhargav Srinivasa Desikan, Benjamin Guedj.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'0.1.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
