@@ -1,0 +1,9 @@
+pycobra
+=======
+
+.. toctree::
+   :maxdepth: 4
+
+   pycobra
+   setup
+   test
