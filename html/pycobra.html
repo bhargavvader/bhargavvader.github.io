@@ -1,0 +1,510 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pycobra package &#8212; pycobra 0.1.0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="pycobra-package">
+<h1>pycobra package<a class="headerlink" href="#pycobra-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-pycobra.cobra">
+<span id="pycobra-cobra-module"></span><h2>pycobra.cobra module<a class="headerlink" href="#module-pycobra.cobra" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pycobra.cobra.cobra">
+<em class="property">class </em><code class="descclassname">pycobra.cobra.</code><code class="descname">cobra</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>epsilon=None</em>, <em>default=True</em>, <em>X_k=None</em>, <em>X_l=None</em>, <em>y_k=None</em>, <em>y_l=None</em>, <em>test_data=None</em>, <em>test_response=None</em>, <em>random_state=None</em>, <em>line_points=80</em><span class="sig-paren">)</span><a class="headerlink" href="#pycobra.cobra.cobra" title="Permalink to this definition">¶</a></dt>
+<dd><p>COBRA - Nonlinear Aggregation of Predictors.</p>
+<p>Based on the paper by Biau, Guedj et al [2016], this is a pythonic implementation of the original COBRA code.</p>
+<dl class="method">
+<dt id="pycobra.cobra.cobra.load_default">
+<code class="descname">load_default</code><span class="sig-paren">(</span><em>machine_list=['lasso', 'tree', 'ridge', 'random_forest']</em><span class="sig-paren">)</span><a class="headerlink" href="#pycobra.cobra.cobra.load_default" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads 4 different scikit-learn regressors by default.</p>
+<dl class="docutils">
+<dt>machine_list: optional, list of strings</dt>
+<dd>List of default machine names to be loaded.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycobra.cobra.cobra.load_machine">
+<code class="descname">load_machine</code><span class="sig-paren">(</span><em>machine_name</em>, <em>machine</em><span class="sig-paren">)</span><a class="headerlink" href="#pycobra.cobra.cobra.load_machine" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a machine to be used during the aggregation strategy.
+The machine object must have been trained using X_k and y_k, and must have a ‘predict()’ method.
+After the machine is loaded, for it to be used during aggregation, load_machine_predictions must be run.</p>
+<dl class="docutils">
+<dt>machine_name <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Name of the machine you are loading</dd>
+<dt>machine: machine/regressor object</dt>
+<dd>The regressor machine object which is mapped to the machine_name</dd>
+</dl>
+<p>self : returns an instance of self.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycobra.cobra.cobra.load_machine_predictions">
+<code class="descname">load_machine_predictions</code><span class="sig-paren">(</span><em>predictions=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pycobra.cobra.cobra.load_machine_predictions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stores the trained machines’ predicitons on D_l in a dictionary, to be used for predictions.
+Should be run after all the machines to be used for aggregation is loaded.</p>
+<dl class="docutils">
+<dt>predictions: dictionary, optional</dt>
+<dd>A pre-existing machine:predictions dictionary can also be loaded.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycobra.cobra.cobra.predict">
+<code class="descname">predict</code><span class="sig-paren">(</span><em>X</em>, <em>M=None</em>, <em>info=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pycobra.cobra.cobra.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs the COBRA aggregation scheme for a single input vector X.</p>
+<p>X: array-like, [n_features]</p>
+<dl class="docutils">
+<dt>M: int, optional</dt>
+<dd>M or alpha refers to the number of machines the prediction must be close to be considered during aggregation.</dd>
+<dt>info: boolean, optional</dt>
+<dd>If info is true the list of points selected in the aggregation is returned.</dd>
+</dl>
+<p>avg: prediction</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycobra.cobra.cobra.predict_array">
+<code class="descname">predict_array</code><span class="sig-paren">(</span><em>X_array</em>, <em>info=False</em>, <em>M=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pycobra.cobra.cobra.predict_array" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs the COBRA aggregation scheme for an array X</p>
+<p>X_array: array-like, [n_features]</p>
+<dl class="docutils">
+<dt>M: int, optional</dt>
+<dd>M or alpha refers to the number of machines the prediction must be close to be considered during aggregation.</dd>
+<dt>info: boolean, optional</dt>
+<dd>If info is true the average number of points selected for a single vector is returned.</dd>
+</dl>
+<p>result: array of prediction</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycobra.cobra.cobra.split_data">
+<code class="descname">split_data</code><span class="sig-paren">(</span><em>k=None</em>, <em>l=None</em>, <em>shuffle_data=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pycobra.cobra.cobra.split_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Split the data into different parts for training machines, and for aggregation.</p>
+<dl class="docutils">
+<dt>k <span class="classifier-delimiter">:</span> <span class="classifier">int, optional</span></dt>
+<dd>k determines D_k, which is the data used to the train the machines.</dd>
+<dt>l: int, optional</dt>
+<dd>l determines D_l, which is the data used in the aggregation.</dd>
+<dt>shuffle: bool, optional</dt>
+<dd>Boolean value to decide to shuffle the data before splitting.</dd>
+<dt>random_state: numpy random_state object or int</dt>
+<dd>Random seed if shuffling.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pycobra.diagnostics">
+<span id="pycobra-diagnostics-module"></span><h2>pycobra.diagnostics module<a class="headerlink" href="#module-pycobra.diagnostics" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pycobra.diagnostics.diagnostics">
+<em class="property">class </em><code class="descclassname">pycobra.diagnostics.</code><code class="descname">diagnostics</code><span class="sig-paren">(</span><em>cobra</em>, <em>X_test</em>, <em>y_test</em>, <em>load_MSE=True</em>, <em>random_state=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pycobra.diagnostics.diagnostics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optimization of parameters, and error details.</p>
+<dl class="method">
+<dt id="pycobra.diagnostics.diagnostics.load_MSE">
+<code class="descname">load_MSE</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pycobra.diagnostics.diagnostics.load_MSE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes MSE and error bound for each Machine based on test data.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycobra.diagnostics.diagnostics.optimal_alpha">
+<code class="descname">optimal_alpha</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>single=False</em>, <em>epsilon=None</em>, <em>info=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pycobra.diagnostics.diagnostics.optimal_alpha" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the optimal alpha for testing data.</p>
+<dl class="docutils">
+<dt>X_test: array-like, [n_features]</dt>
+<dd>Vector for which we want optimal alpha values</dd>
+<dt>y_test: float</dt>
+<dd>Target value for query to compare.</dd>
+<dt>single: boolean, optional</dt>
+<dd>Option to calculate optimal alpha for a single query point instead.</dd>
+<dt>info: bool, optional</dt>
+<dd>Returns MSE dictionary for each alpha value</dd>
+<dt>epsilon: float, optional</dt>
+<dd>fixed epsilon value to help determine optimal alpha.</dd>
+</dl>
+<p>MSE: dictionary mapping alpha with mean squared errors
+opt: optimal alpha combination</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycobra.diagnostics.diagnostics.optimal_alpha_grid">
+<code class="descname">optimal_alpha_grid</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>line_points=200</em>, <em>info=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pycobra.diagnostics.diagnostics.optimal_alpha_grid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the optimal epsilon and alpha for a single query point.</p>
+<dl class="docutils">
+<dt>X_test: array-like, [n_features]</dt>
+<dd>Vector for which we want optimal alpha and epsilon values</dd>
+<dt>y_test: float</dt>
+<dd>Target value for query to compare.</dd>
+<dt>line_points: integer, optional</dt>
+<dd>Number of epsilon values to traverse the grid.</dd>
+<dt>info: bool, optional</dt>
+<dd>Returns MSE dictionary for each epsilon/alpha value</dd>
+</dl>
+<p>MSE: dictionary mapping (alpha, epsilon) with mean squared errors
+opt: optimal epislon/alpha combination</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycobra.diagnostics.diagnostics.optimal_epsilon">
+<code class="descname">optimal_epsilon</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>line_points=200</em>, <em>info=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pycobra.diagnostics.diagnostics.optimal_epsilon" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the optimal combination epsilon value for X_test</p>
+<dl class="docutils">
+<dt>X_test: array-like, [n_features]</dt>
+<dd>Vector for which we want for optimal epsilon.</dd>
+<dt>y_test: float</dt>
+<dd>Target value for query to compare.</dd>
+<dt>line_points: integer, optional</dt>
+<dd>Number of epsilon values to traverse the grid.</dd>
+<dt>info: bool, optional</dt>
+<dd>Returns MSE dictionary for each epsilon value.</dd>
+</dl>
+<p>MSE: dictionary mapping epsilon with mean squared errors
+opt: optimal epsilon value</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycobra.diagnostics.diagnostics.optimal_machines">
+<code class="descname">optimal_machines</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>single=False</em>, <em>epsilon=None</em>, <em>info=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pycobra.diagnostics.diagnostics.optimal_machines" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the optimal combination of machines for testing data.</p>
+<dl class="docutils">
+<dt>X_test: array-like, [n_features]</dt>
+<dd>Vector for which we want optimal machine combinations.</dd>
+<dt>y_test: float</dt>
+<dd>Target value for query to compare.</dd>
+<dt>single: boolean, optional</dt>
+<dd>Option to calculate optimal machine combinations for a single query point instead.</dd>
+<dt>info: bool, optional</dt>
+<dd>Returns MSE dictionary for each machine combination value</dd>
+<dt>epsilon: float, optional</dt>
+<dd>fixed epsilon value to help determine optimal machines.</dd>
+</dl>
+<p>MSE: dictionary mapping machines with mean squared errors
+opt: optimal machines combination</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycobra.diagnostics.diagnostics.optimal_machines_grid">
+<code class="descname">optimal_machines_grid</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>line_points=200</em>, <em>info=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pycobra.diagnostics.diagnostics.optimal_machines_grid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the optimal epsilon and machine-combination for a single query point.</p>
+<dl class="docutils">
+<dt>X_test: array-like, [n_features]</dt>
+<dd>Vector for which we want optimal machines and epsilon values</dd>
+<dt>y_test: float</dt>
+<dd>Target value for query to compare.</dd>
+<dt>line_points: integer, optional</dt>
+<dd>Number of epsilon values to traverse the grid.</dd>
+<dt>info: bool, optional</dt>
+<dd>Returns MSE dictionary for each epsilon/machine value.</dd>
+</dl>
+<p>MSE: dictionary mapping (machine combination, epsilon) with mean squared errors
+opt: optimal epislon/machine combination</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycobra.diagnostics.diagnostics.optimal_split">
+<code class="descname">optimal_split</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>split=None</em>, <em>epsilon=None</em>, <em>info=False</em>, <em>graph=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pycobra.diagnostics.diagnostics.optimal_split" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the optimal combination split (D_k, D_l) for fixed epsilon value.</p>
+<dl class="docutils">
+<dt>X_test: array-like, [n_features]</dt>
+<dd>Vector for which we want for optimal split.</dd>
+<dt>y_test: float</dt>
+<dd>Target value for query to compare.</dd>
+<dt>epsilon: float, optional.</dt>
+<dd>fixed epsilon value to help determine optimal machines.</dd>
+<dt>split: list, optional.</dt>
+<dd>D_k, D_l break-up to calculate MSE</dd>
+<dt>info: bool, optional.</dt>
+<dd>Returns MSE dictionary for each split.</dd>
+<dt>graph: bool, optional.</dt>
+<dd>Plots graph of MSE vs split</dd>
+</dl>
+<p>MSE: dictionary mapping split with mean squared errors
+opt: optimal epsilon value</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pycobra.visualisation">
+<span id="pycobra-visualisation-module"></span><h2>pycobra.visualisation module<a class="headerlink" href="#module-pycobra.visualisation" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="pycobra.visualisation.create_labels">
+<code class="descclassname">pycobra.visualisation.</code><code class="descname">create_labels</code><span class="sig-paren">(</span><em>indice_info</em><span class="sig-paren">)</span><a class="headerlink" href="#pycobra.visualisation.create_labels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper method to create labels for plotting.</p>
+<dl class="docutils">
+<dt>indice_info: list of strings</dt>
+<dd>List of machine names</dd>
+</dl>
+<dl class="docutils">
+<dt>label: string</dt>
+<dd>Serves as a label during plotting.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pycobra.visualisation.gen_machine_colors">
+<code class="descclassname">pycobra.visualisation.</code><code class="descname">gen_machine_colors</code><span class="sig-paren">(</span><em>only_colors=False</em>, <em>num_colors=None</em>, <em>indice_info=None</em>, <em>rgb=False</em>, <em>plot_machines=None</em>, <em>colors=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pycobra.visualisation.gen_machine_colors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper method to create a machine combinations to color dictionary, or a list of colors.</p>
+<dl class="docutils">
+<dt>indice_info: dictionary, optional</dt>
+<dd>Dictionary which is a result of running pycobra.visualisation.indice_info. Maps indices to combinations of machines.</dd>
+<dt>only_colors: bool, optional</dt>
+<dd>Option to return only a list of colors</dd>
+<dt>num_colors: int, optional</dt>
+<dd>Number of colors to be returned if using only_colors</dd>
+<dt>rgb <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
+<dd>Creates dictionary based on machine used and r, g, b, a scheme.</dd>
+<dt>plot_machines: list of strings, optional</dt>
+<dd>List of machines to use in rgb coloring.</dd>
+<dt>colors: list of strings, optional</dt>
+<dd>List of colors to be used for pairing with machine_combinations</dd>
+</dl>
+<dl class="docutils">
+<dt>machine_colors: dictionary</dt>
+<dd>Dictionary mapping machine combinations and color.</dd>
+</dl>
+</dd></dl>
+
+<dl class="class">
+<dt id="pycobra.visualisation.visualisation">
+<em class="property">class </em><code class="descclassname">pycobra.visualisation.</code><code class="descname">visualisation</code><span class="sig-paren">(</span><em>cobra</em>, <em>X_test=None</em>, <em>y_test=None</em>, <em>plot_size=8</em>, <em>random_state=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pycobra.visualisation.visualisation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots and visualisations of cobra.
+If X_test and y_test is loaded, you can run the plotting functions with no parameters.</p>
+<dl class="method">
+<dt id="pycobra.visualisation.visualisation.QQ">
+<code class="descname">QQ</code><span class="sig-paren">(</span><em>y_test</em>, <em>machine='COBRA'</em><span class="sig-paren">)</span><a class="headerlink" href="#pycobra.visualisation.visualisation.QQ" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots the machine results vs the actual results in the form of a QQ plot.</p>
+<dl class="docutils">
+<dt>y_test: array-like, shape = [n_samples]</dt>
+<dd>Truth values to compare machine predictions against.</dd>
+<dt>machine: string, optional</dt>
+<dd>Name of machine to perform QQ plot.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycobra.visualisation.visualisation.boxplot">
+<code class="descname">boxplot</code><span class="sig-paren">(</span><em>machines=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pycobra.visualisation.visualisation.boxplot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots boxplots of machines.</p>
+<dl class="docutils">
+<dt>machine: string, optional</dt>
+<dd>Name of machine to perform QQ plot.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycobra.visualisation.visualisation.color_cobra">
+<code class="descname">color_cobra</code><span class="sig-paren">(</span><em>X_test, y_test=None, line_points=200, epsilon=None, indice_info=None, plot_machines=['ridge', 'lasso', 'random_forest', 'tree'], single=False, machine_colors=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pycobra.visualisation.visualisation.color_cobra" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the input space and color query points based on the optimal machine used for that point.</p>
+<dl class="docutils">
+<dt>X_test <span class="classifier-delimiter">:</span> <span class="classifier">array-like, shape = [n_samples, n_features], optional.</span></dt>
+<dd>Testing data - here it serves as our input space.</dd>
+<dt>y_test <span class="classifier-delimiter">:</span> <span class="classifier">array-like, shape = [n_samples], optional.</span></dt>
+<dd>Test data target values. Used to find indice_info if it isn’t passed.</dd>
+<dt>epsilon: float, optional</dt>
+<dd>Epsilon value to use for diagnostics. Used to find indice_info if it isn’t passed.</dd>
+<dt>line_points: int, optional</dt>
+<dd>if epsilon is not passed, optimal epsilon is found per point. Used to find indice_info if it isn’t passed.</dd>
+<dt>indice_info: dicitonary, optional </dt>
+<dd>dictionary mapping indice to optimal machines.</dd>
+<dt>plot_machines: list, optional</dt>
+<dd>list of machines to be plotted.</dd>
+<dt>single: bool, optional</dt>
+<dd>plots a single plot with each machine combination.</dd>
+<dt>machine_colors: dictionary, optional</dt>
+<dd>Depending on the kind of coloring, a dictionary mapping machines to colors.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycobra.visualisation.visualisation.indice_info">
+<code class="descname">indice_info</code><span class="sig-paren">(</span><em>X_test</em>, <em>y_test</em>, <em>epsilon=None</em>, <em>line_points=200</em><span class="sig-paren">)</span><a class="headerlink" href="#pycobra.visualisation.visualisation.indice_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to return information about each indices (query) optimal machines for testing data.</p>
+<dl class="docutils">
+<dt>X_test <span class="classifier-delimiter">:</span> <span class="classifier">array-like, shape = [n_samples, n_features], optional.</span></dt>
+<dd>Testing data.</dd>
+<dt>y_test <span class="classifier-delimiter">:</span> <span class="classifier">array-like, shape = [n_samples], optional.</span></dt>
+<dd>Test data target values.</dd>
+<dt>epsilon: float, optional</dt>
+<dd>Epsilon value to use for diagnostics</dd>
+<dt>line_points: int, optional</dt>
+<dd>if epsilon is not passed, optimal epsilon is found per point.</dd>
+</dl>
+<p>indice_info: dicitonary mapping indice to optimal machines.</p>
+<p>MSE: dictionary mapping indice to mean squared error for optimal machines for that point.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycobra.visualisation.visualisation.load_results">
+<code class="descname">load_results</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pycobra.visualisation.visualisation.load_results" title="Permalink to this definition">¶</a></dt>
+<dd><p>If using the same test data, store values of all machines predictions on test data so plotting/analysing is easier.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycobra.visualisation.visualisation.plot_machines">
+<code class="descname">plot_machines</code><span class="sig-paren">(</span><em>X_test=None</em>, <em>y_test=None</em>, <em>machines=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pycobra.visualisation.visualisation.plot_machines" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the results of the machines versus the actual answers (testing space).</p>
+<dl class="docutils">
+<dt>X_test <span class="classifier-delimiter">:</span> <span class="classifier">array-like, shape = [n_samples, n_features], optional.</span></dt>
+<dd>Testing data.</dd>
+<dt>y_test <span class="classifier-delimiter">:</span> <span class="classifier">array-like, shape = [n_samples], optional.</span></dt>
+<dd>Test data target values.</dd>
+<dt>machines: list, optional</dt>
+<dd>List of machines to plot.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycobra.visualisation.visualisation.voronoi">
+<code class="descname">voronoi</code><span class="sig-paren">(</span><em>X_test, y_test=None, line_points=200, epsilon=None, indice_info=None, MSE=None, plot_machines=['ridge', 'lasso', 'random_forest', 'tree'], machine_colors=None, gradient=False, single=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pycobra.visualisation.visualisation.voronoi" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the input space and color query points as a Voronoi Tesselation based on the optimal machine used for that point.</p>
+<dl class="docutils">
+<dt>X_test <span class="classifier-delimiter">:</span> <span class="classifier">array-like, shape = [n_samples, n_features], optional.</span></dt>
+<dd>Testing data - here it serves as our input space.</dd>
+<dt>y_test <span class="classifier-delimiter">:</span> <span class="classifier">array-like, shape = [n_samples], optional.</span></dt>
+<dd>Test data target values. Used to find indice_info if it isn’t passed.</dd>
+<dt>epsilon: float, optional</dt>
+<dd>Epsilon value to use for diagnostics. Used to find indice_info if it isn’t passed.</dd>
+<dt>line_points: int, optional</dt>
+<dd>if epsilon is not passed, optimal epsilon is found per point. Used to find indice_info if it isn’t passed.</dd>
+<dt>indice_info: dicitonary, optional </dt>
+<dd>dictionary mapping indice to optimal machines.</dd>
+<dt>MSE: dictionary, optional</dt>
+<dd>dictionary mapping indice to mean-squared error for optimal machines</dd>
+<dt>plot_machines: list, optional</dt>
+<dd>list of machines to be plotted.</dd>
+<dt>single: bool, optional</dt>
+<dd>plots a single plot with each machine combination.</dd>
+<dt>gradient: bool, optional</dt>
+<dd>instead of aggregating optimal machines, plots a colored plot for each machine,
+shaded according to the mean-squared error of that “region”</dd>
+<dt>machine_colors: dictionary, optional</dt>
+<dd>Depending on the kind of coloring, a dictionary mapping machines to colors.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pycobra.visualisation.voronoi_finite_polygons_2d">
+<code class="descclassname">pycobra.visualisation.</code><code class="descname">voronoi_finite_polygons_2d</code><span class="sig-paren">(</span><em>vor</em>, <em>radius=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pycobra.visualisation.voronoi_finite_polygons_2d" title="Permalink to this definition">¶</a></dt>
+<dd><p>Code originally written by pv: <a class="reference external" href="https://gist.github.com/pv/8036995">https://gist.github.com/pv/8036995</a>.
+Helper method for voronoi.
+Reconstruct infinite voronoi regions in a 2D diagram to finite
+regions.</p>
+<dl class="docutils">
+<dt>vor <span class="classifier-delimiter">:</span> <span class="classifier">Voronoi</span></dt>
+<dd>Input diagram</dd>
+<dt>radius <span class="classifier-delimiter">:</span> <span class="classifier">float, optional</span></dt>
+<dd>Distance to ‘points at infinity’.</dd>
+</dl>
+<dl class="docutils">
+<dt>regions <span class="classifier-delimiter">:</span> <span class="classifier">list of tuples</span></dt>
+<dd>Indices of vertices in each revised Voronoi regions.</dd>
+<dt>vertices <span class="classifier-delimiter">:</span> <span class="classifier">list of tuples</span></dt>
+<dd>Coordinates for revised Voronoi vertices. Same as coordinates
+of input vertices, with ‘points at infinity’ appended to the
+end.</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pycobra">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pycobra" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">pycobra</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Bhargav Srinivasa Desikan, Benjamin Guedj.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/pycobra.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
