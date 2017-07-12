@@ -20,6 +20,14 @@ pycobra\.diagnostics module
     :undoc-members:
     :show-inheritance:
 
+pycobra\.ewa module
+-------------------
+
+.. automodule:: pycobra.ewa
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 pycobra\.visualisation module
 -----------------------------
 
