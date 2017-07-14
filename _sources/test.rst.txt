@@ -4,24 +4,24 @@ test package
 Submodules
 ----------
 
-test\.test\_cobra module
-------------------------
+test.test_cobra module
+----------------------
 
 .. automodule:: test.test_cobra
     :members:
     :undoc-members:
     :show-inheritance:
 
-test\.test\_diagnostics module
-------------------------------
+test.test_diagnostics module
+----------------------------
 
 .. automodule:: test.test_diagnostics
     :members:
     :undoc-members:
     :show-inheritance:
 
-test\.test\_visualisation module
---------------------------------
+test.test_visualisation module
+------------------------------
 
 .. automodule:: test.test_visualisation
     :members:
