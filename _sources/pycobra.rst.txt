@@ -4,40 +4,40 @@ pycobra package
 Submodules
 ----------
 
-pycobra.classifiercobra module
-------------------------------
+pycobra\.classifiercobra module
+-------------------------------
 
 .. automodule:: pycobra.classifiercobra
     :members:
     :undoc-members:
     :show-inheritance:
 
-pycobra.cobra module
---------------------
+pycobra\.cobra module
+---------------------
 
 .. automodule:: pycobra.cobra
     :members:
     :undoc-members:
     :show-inheritance:
 
-pycobra.diagnostics module
---------------------------
+pycobra\.diagnostics module
+---------------------------
 
 .. automodule:: pycobra.diagnostics
     :members:
     :undoc-members:
     :show-inheritance:
 
-pycobra.ewa module
-------------------
+pycobra\.ewa module
+-------------------
 
 .. automodule:: pycobra.ewa
     :members:
     :undoc-members:
     :show-inheritance:
 
-pycobra.visualisation module
-----------------------------
+pycobra\.visualisation module
+-----------------------------
 
 .. automodule:: pycobra.visualisation
     :members:

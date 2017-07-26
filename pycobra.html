@@ -92,10 +92,10 @@
               <div class="local-toc"><ul>
 <li><a class="reference internal" href="#">pycobra package</a><ul>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#pycobra-classifiercobra-module">pycobra.classifiercobra module</a></li>
+<li><a class="reference internal" href="#module-pycobra.classifiercobra">pycobra.classifiercobra module</a></li>
 <li><a class="reference internal" href="#module-pycobra.cobra">pycobra.cobra module</a></li>
 <li><a class="reference internal" href="#module-pycobra.diagnostics">pycobra.diagnostics module</a></li>
-<li><a class="reference internal" href="#pycobra-ewa-module">pycobra.ewa module</a></li>
+<li><a class="reference internal" href="#module-pycobra.ewa">pycobra.ewa module</a></li>
 <li><a class="reference internal" href="#module-pycobra.visualisation">pycobra.visualisation module</a></li>
 <li><a class="reference internal" href="#module-pycobra">Module contents</a></li>
 </ul>
@@ -168,25 +168,21 @@
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="pycobra-classifiercobra-module">
-<h2>pycobra.classifiercobra module<a class="headerlink" href="#pycobra-classifiercobra-module" title="Permalink to this headline">¶</a></h2>
-</div>
-<div class="section" id="module-pycobra.cobra">
-<span id="pycobra-cobra-module"></span><h2>pycobra.cobra module<a class="headerlink" href="#module-pycobra.cobra" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-pycobra.classifiercobra">
+<span id="pycobra-classifiercobra-module"></span><h2>pycobra.classifiercobra module<a class="headerlink" href="#module-pycobra.classifiercobra" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
-<dt id="pycobra.cobra.Cobra">
-<em class="property">class </em><code class="descclassname">pycobra.cobra.</code><code class="descname">Cobra</code><span class="sig-paren">(</span><em>random_state=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pycobra.cobra.Cobra" title="Permalink to this definition">¶</a></dt>
+<dt id="pycobra.classifiercobra.ClassifierCobra">
+<em class="property">class </em><code class="descclassname">pycobra.classifiercobra.</code><code class="descname">ClassifierCobra</code><span class="sig-paren">(</span><em>random_state=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pycobra.classifiercobra.ClassifierCobra" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">sklearn.base.BaseEstimator</span></code></p>
-<p>COBRA - Nonlinear Aggregation of Predictors.</p>
-<p>Based on the paper by Biau, Guedj et al [2016], this is a pythonic implementation of the original COBRA code.</p>
+<p>Classification algorithm as introduced by Mojirsheibani [1999] Combining Classifiers via Discretization, Journal of the American Statistical Association.</p>
 <dl class="method">
-<dt id="pycobra.cobra.Cobra.fit">
-<code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>default=True</em>, <em>epsilon=None</em>, <em>X_k=None</em>, <em>X_l=None</em>, <em>y_k=None</em>, <em>y_l=None</em>, <em>X_epsilon=None</em>, <em>y_epsilon=None</em>, <em>line_points=80</em><span class="sig-paren">)</span><a class="headerlink" href="#pycobra.cobra.Cobra.fit" title="Permalink to this definition">¶</a></dt>
+<dt id="pycobra.classifiercobra.ClassifierCobra.fit">
+<code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>default=True</em>, <em>X_k=None</em>, <em>X_l=None</em>, <em>y_k=None</em>, <em>y_l=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pycobra.classifiercobra.ClassifierCobra.fit" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="docutils">
-<dt>epsilon: float, optional</dt>
-<dd>Epsilon value described in the paper which determines which points are selected for the aggregate.
-Default value is determined by running a grid if test data is provided. 
-If not, a mean of the possible distances is chosen.</dd>
+<dt>X: array-like, [n_samples, n_features]</dt>
+<dd>Training data which will be used to create ClassifierCobra.</dd>
+<dt>y: array-like [n_samples]</dt>
+<dd>Training labels for classification.</dd>
 <dt>default: bool, optional</dt>
 <dd>If set as true then sets up COBRA with default machines and splitting.</dd>
 <dt>X_k <span class="classifier-delimiter">:</span> <span class="classifier">shape = [n_samples, n_features]</span></dt>
@@ -199,10 +195,127 @@ Can be loaded directly into COBRA; if not, the split_data method is used as defa
 Can be loaded directly into COBRA; if not, the split_data method is used as default.</dd>
 <dt>y_l <span class="classifier-delimiter">:</span> <span class="classifier">array-like, shape = [n_samples] </span></dt>
 <dd>Target values which are actually used in the aggregation of COBRA.</dd>
-<dt>X_epsilon: shape = [n_samples, n_features]</dt>
-<dd>Testing data used to determine optimal data-dependant epsilon value if it is not passed.</dd>
-<dt>y_epsilon <span class="classifier-delimiter">:</span> <span class="classifier">array-like, shape = [n_samples] </span></dt>
-<dd>Target values used to determine optimal data-dependant epsilon value if it is not passed.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycobra.classifiercobra.ClassifierCobra.load_default">
+<code class="descname">load_default</code><span class="sig-paren">(</span><em>machine_list=['sgd', 'tree', 'knn', 'svm']</em><span class="sig-paren">)</span><a class="headerlink" href="#pycobra.classifiercobra.ClassifierCobra.load_default" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads 4 different scikit-learn regressors by default.</p>
+<dl class="docutils">
+<dt>machine_list: optional, list of strings</dt>
+<dd>List of default machine names to be loaded.</dd>
+</dl>
+<p>self : returns an instance of self.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycobra.classifiercobra.ClassifierCobra.load_machine">
+<code class="descname">load_machine</code><span class="sig-paren">(</span><em>machine_name</em>, <em>machine</em><span class="sig-paren">)</span><a class="headerlink" href="#pycobra.classifiercobra.ClassifierCobra.load_machine" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a machine to be used during the aggregation strategy.
+The machine object must have been trained using X_k and y_k, and must have a ‘predict()’ method.
+After the machine is loaded, for it to be used during aggregation, load_machine_predictions must be run.</p>
+<dl class="docutils">
+<dt>machine_name <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Name of the machine you are loading</dd>
+<dt>machine: machine/regressor object</dt>
+<dd>The regressor machine object which is mapped to the machine_name</dd>
+</dl>
+<p>self : returns an instance of self.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycobra.classifiercobra.ClassifierCobra.load_machine_predictions">
+<code class="descname">load_machine_predictions</code><span class="sig-paren">(</span><em>predictions=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pycobra.classifiercobra.ClassifierCobra.load_machine_predictions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stores the trained machines’ predicitons on D_l in a dictionary, to be used for predictions.
+Should be run after all the machines to be used for aggregation is loaded.</p>
+<dl class="docutils">
+<dt>predictions: dictionary, optional</dt>
+<dd>A pre-existing machine:predictions dictionary can also be loaded.</dd>
+</dl>
+<p>self : returns an instance of self.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycobra.classifiercobra.ClassifierCobra.pred">
+<code class="descname">pred</code><span class="sig-paren">(</span><em>X</em>, <em>M</em>, <em>info=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pycobra.classifiercobra.ClassifierCobra.pred" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs the CLassififerCobra aggregation scheme, used in predict method.</p>
+<p>X: array-like, [n_features]</p>
+<dl class="docutils">
+<dt>M: int, optional</dt>
+<dd>M refers to the number of machines the prediction must be close to to be considered during aggregation.</dd>
+<dt>info: boolean, optional</dt>
+<dd>If info is true the list of points selected in the aggregation is returned.</dd>
+</dl>
+<p>result: prediction</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycobra.classifiercobra.ClassifierCobra.predict">
+<code class="descname">predict</code><span class="sig-paren">(</span><em>X</em>, <em>M=None</em>, <em>info=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pycobra.classifiercobra.ClassifierCobra.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs the ClassifierCobra aggregation scheme, calls pred.
+ClassifierCobra performs a majority vote among all points which are retained by the COBRA procedure.</p>
+<p>X: array-like, [n_features]</p>
+<dl class="docutils">
+<dt>M: int, optional</dt>
+<dd>M refers to the number of machines the prediction must be close to to be considered during aggregation.</dd>
+<dt>info: boolean, optional</dt>
+<dd>If info is true the list of points selected in the aggregation is returned.</dd>
+</dl>
+<p>result: prediction</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycobra.classifiercobra.ClassifierCobra.split_data">
+<code class="descname">split_data</code><span class="sig-paren">(</span><em>k=None</em>, <em>l=None</em>, <em>shuffle_data=True</em><span class="sig-paren">)</span><a class="headerlink" href="#pycobra.classifiercobra.ClassifierCobra.split_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Split the data into different parts for training machines and for aggregation.</p>
+<dl class="docutils">
+<dt>k <span class="classifier-delimiter">:</span> <span class="classifier">int, optional</span></dt>
+<dd>k is the number of points used to train the machines. 
+Those are the first k points of the data provided.</dd>
+<dt>l: int, optional</dt>
+<dd>l is the number of points used to form the ClassifierCobra aggregate.</dd>
+<dt>shuffle: bool, optional</dt>
+<dd>Boolean value to decide to shuffle the data before splitting.</dd>
+</dl>
+<p>self : returns an instance of self.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pycobra.cobra">
+<span id="pycobra-cobra-module"></span><h2>pycobra.cobra module<a class="headerlink" href="#module-pycobra.cobra" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pycobra.cobra.Cobra">
+<em class="property">class </em><code class="descclassname">pycobra.cobra.</code><code class="descname">Cobra</code><span class="sig-paren">(</span><em>random_state=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pycobra.cobra.Cobra" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">sklearn.base.BaseEstimator</span></code></p>
+<p>COBRA: A combined regression strategy.
+Based on the paper by Biau, Fischer, Guedj, Malley [2016], this is a pythonic implementation of the original COBRA code.</p>
+<dl class="method">
+<dt id="pycobra.cobra.Cobra.fit">
+<code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>default=True</em>, <em>epsilon=None</em>, <em>X_k=None</em>, <em>X_l=None</em>, <em>y_k=None</em>, <em>y_l=None</em>, <em>X_epsilon=None</em>, <em>y_epsilon=None</em>, <em>line_points=80</em><span class="sig-paren">)</span><a class="headerlink" href="#pycobra.cobra.Cobra.fit" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>X: array-like, [n_samples, n_features]</dt>
+<dd>Training data which will be used to create the COBRA aggregate.</dd>
+<dt>y: array-like, shape = [n_samples]</dt>
+<dd>Target values used to train the machines used in the aggregation.</dd>
+<dt>epsilon: float, optional</dt>
+<dd>Epsilon value described in the paper which determines which points are selected for the aggregate.
+Default value is determined by optimizing over a grid if test data is provided.
+If not, a mean of the possible distances is chosen.</dd>
+<dt>default: bool, optional</dt>
+<dd>If set as true then sets up COBRA with default machines and splitting.</dd>
+<dt>X_k <span class="classifier-delimiter">:</span> <span class="classifier">shape = [n_samples, n_features]</span></dt>
+<dd>Training data which is used to train the machines used in the aggregation.
+Can be loaded directly into COBRA; if not, the split_data method is used as default.</dd>
+<dt>y_k <span class="classifier-delimiter">:</span> <span class="classifier">array-like, shape = [n_samples]</span></dt>
+<dd>Target values used to train the machines used in the aggregation.</dd>
+<dt>X_l <span class="classifier-delimiter">:</span> <span class="classifier">shape = [n_samples, n_features]</span></dt>
+<dd>Training data which is used to form the aggregate.
+Can be loaded directly into COBRA; if not, the split_data method is used as default.</dd>
+<dt>y_l <span class="classifier-delimiter">:</span> <span class="classifier">array-like, shape = [n_samples] </span></dt>
+<dd>Target values which are actually used to form the aggregate.</dd>
 <dt>line_points: integer, optional</dt>
 <dd>Number of epsilon values to traverse the grid if epsilon is not passed.</dd>
 </dl>
@@ -216,6 +329,7 @@ Can be loaded directly into COBRA; if not, the split_data method is used as defa
 <dt>machine_list: optional, list of strings</dt>
 <dd>List of default machine names to be loaded.</dd>
 </dl>
+<p>self : returns an instance of self.</p>
 </dd></dl>
 
 <dl class="method">
@@ -236,12 +350,13 @@ After the machine is loaded, for it to be used during aggregation, load_machine_
 <dl class="method">
 <dt id="pycobra.cobra.Cobra.load_machine_predictions">
 <code class="descname">load_machine_predictions</code><span class="sig-paren">(</span><em>predictions=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pycobra.cobra.Cobra.load_machine_predictions" title="Permalink to this definition">¶</a></dt>
-<dd><p>Stores the trained machines’ predicitons on D_l in a dictionary, to be used for predictions.
+<dd><p>Stores the trained machines’ predicitons on training data in a dictionary, to be used for predictions.
 Should be run after all the machines to be used for aggregation is loaded.</p>
 <dl class="docutils">
 <dt>predictions: dictionary, optional</dt>
 <dd>A pre-existing machine:predictions dictionary can also be loaded.</dd>
 </dl>
+<p>self : returns an instance of self.</p>
 </dd></dl>
 
 <dl class="method">
@@ -251,7 +366,7 @@ Should be run after all the machines to be used for aggregation is loaded.</p>
 <p>X: array-like, [n_features]</p>
 <dl class="docutils">
 <dt>M: int, optional</dt>
-<dd>M or alpha refers to the number of machines the prediction must be close to be considered during aggregation.</dd>
+<dd>M refers to the number of machines the prediction must be close to to be considered during aggregation.</dd>
 <dt>info: boolean, optional</dt>
 <dd>If info is true the list of points selected in the aggregation is returned.</dd>
 </dl>
@@ -265,7 +380,7 @@ Should be run after all the machines to be used for aggregation is loaded.</p>
 <p>X: array-like, [n_features]</p>
 <dl class="docutils">
 <dt>M: int, optional</dt>
-<dd>M or alpha refers to the number of machines the prediction must be close to be considered during aggregation.</dd>
+<dd>M refers to the number of machines the prediction must be close to to be considered during aggregation.</dd>
 <dt>info: boolean, optional</dt>
 <dd>If info is true the list of points selected in the aggregation is returned.</dd>
 </dl>
@@ -275,17 +390,17 @@ Should be run after all the machines to be used for aggregation is loaded.</p>
 <dl class="method">
 <dt id="pycobra.cobra.Cobra.split_data">
 <code class="descname">split_data</code><span class="sig-paren">(</span><em>k=None</em>, <em>l=None</em>, <em>shuffle_data=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pycobra.cobra.Cobra.split_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>Split the data into different parts for training machines, and for aggregation.</p>
+<dd><p>Split the data into different parts for training machines and for aggregation.</p>
 <dl class="docutils">
 <dt>k <span class="classifier-delimiter">:</span> <span class="classifier">int, optional</span></dt>
-<dd>k determines D_k, which is the data used to the train the machines.</dd>
+<dd>k is the number of points used to train the machines. 
+Those are the first k points of the data provided.</dd>
 <dt>l: int, optional</dt>
-<dd>l determines D_l, which is the data used in the aggregation.</dd>
+<dd>l is the number of points used to form the COBRA aggregate.</dd>
 <dt>shuffle: bool, optional</dt>
 <dd>Boolean value to decide to shuffle the data before splitting.</dd>
-<dt>random_state: numpy random_state object or int</dt>
-<dd>Random seed if shuffling.</dd>
 </dl>
+<p>self : returns an instance of self.</p>
 </dd></dl>
 
 </dd></dl>
@@ -295,22 +410,30 @@ Should be run after all the machines to be used for aggregation is loaded.</p>
 <span id="pycobra-diagnostics-module"></span><h2>pycobra.diagnostics module<a class="headerlink" href="#module-pycobra.diagnostics" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="pycobra.diagnostics.Diagnostics">
-<em class="property">class </em><code class="descclassname">pycobra.diagnostics.</code><code class="descname">Diagnostics</code><span class="sig-paren">(</span><em>cobra</em>, <em>X_test=None</em>, <em>y_test=None</em>, <em>load_MSE=True</em>, <em>random_state=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pycobra.diagnostics.Diagnostics" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pycobra.diagnostics.</code><code class="descname">Diagnostics</code><span class="sig-paren">(</span><em>aggregate</em>, <em>X_test=None</em>, <em>y_test=None</em>, <em>load_MSE=True</em>, <em>random_state=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pycobra.diagnostics.Diagnostics" title="Permalink to this definition">¶</a></dt>
 <dd><p>Optimization of parameters, and error details.</p>
 <dl class="method">
 <dt id="pycobra.diagnostics.Diagnostics.load_MSE">
 <code class="descname">load_MSE</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pycobra.diagnostics.Diagnostics.load_MSE" title="Permalink to this definition">¶</a></dt>
 <dd><p>Computes MSE and error bound for each Machine based on test data.</p>
+<p>self : returns an instance of self.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycobra.diagnostics.Diagnostics.load_errors">
+<code class="descname">load_errors</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pycobra.diagnostics.Diagnostics.load_errors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes accuracy score for each Machine based on test data.</p>
+<p>self : returns an instance of self.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pycobra.diagnostics.Diagnostics.optimal_alpha">
 <code class="descname">optimal_alpha</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>single=False</em>, <em>epsilon=None</em>, <em>info=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pycobra.diagnostics.Diagnostics.optimal_alpha" title="Permalink to this definition">¶</a></dt>
-<dd><p>Find the optimal alpha for testing data.</p>
+<dd><p>Find the optimal alpha for testing data for the COBRA predictor.</p>
 <dl class="docutils">
-<dt>X_test: array-like, [n_features]</dt>
+<dt>X: array-like, [n_features]</dt>
 <dd>Vector for which we want optimal alpha values</dd>
-<dt>y_test: float</dt>
+<dt>y: float</dt>
 <dd>Target value for query to compare.</dd>
 <dt>single: boolean, optional</dt>
 <dd>Option to calculate optimal alpha for a single query point instead.</dd>
@@ -326,11 +449,11 @@ opt: optimal alpha combination</p>
 <dl class="method">
 <dt id="pycobra.diagnostics.Diagnostics.optimal_alpha_grid">
 <code class="descname">optimal_alpha_grid</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>line_points=200</em>, <em>info=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pycobra.diagnostics.Diagnostics.optimal_alpha_grid" title="Permalink to this definition">¶</a></dt>
-<dd><p>Find the optimal epsilon and alpha for a single query point.</p>
+<dd><p>Find the optimal epsilon and alpha for a single query point for the COBRA predictor.</p>
 <dl class="docutils">
-<dt>X_test: array-like, [n_features]</dt>
+<dt>X: array-like, [n_features]</dt>
 <dd>Vector for which we want optimal alpha and epsilon values</dd>
-<dt>y_test: float</dt>
+<dt>y: float</dt>
 <dd>Target value for query to compare.</dd>
 <dt>line_points: integer, optional</dt>
 <dd>Number of epsilon values to traverse the grid.</dd>
@@ -342,13 +465,31 @@ opt: optimal epislon/alpha combination</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="pycobra.diagnostics.Diagnostics.optimal_beta">
+<code class="descname">optimal_beta</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>betas=None</em>, <em>info=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pycobra.diagnostics.Diagnostics.optimal_beta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the optimal beta value for the Ewa predictor.</p>
+<dl class="docutils">
+<dt>X: array-like, [n_features]</dt>
+<dd>Vector for which we want for optimal beta.</dd>
+<dt>y: float</dt>
+<dd>Target value for query to compare.</dd>
+<dt>betas: list, optional</dt>
+<dd>List of beta values to iterate over for optimal beta.</dd>
+<dt>info: bool, optional</dt>
+<dd>Returns MSE dictionary for each beta value.</dd>
+</dl>
+<p>MSE: dictionary mapping epsilon with mean squared errors
+opt: optimal beta value</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="pycobra.diagnostics.Diagnostics.optimal_epsilon">
 <code class="descname">optimal_epsilon</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>line_points=200</em>, <em>info=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pycobra.diagnostics.Diagnostics.optimal_epsilon" title="Permalink to this definition">¶</a></dt>
-<dd><p>Find the optimal combination epsilon value for X_test</p>
+<dd><p>Find the optimal epsilon value for the COBRA predictor.</p>
 <dl class="docutils">
-<dt>X_test: array-like, [n_features]</dt>
+<dt>X: array-like, [n_features]</dt>
 <dd>Vector for which we want for optimal epsilon.</dd>
-<dt>y_test: float</dt>
+<dt>y: float</dt>
 <dd>Target value for query to compare.</dd>
 <dt>line_points: integer, optional</dt>
 <dd>Number of epsilon values to traverse the grid.</dd>
@@ -362,11 +503,11 @@ opt: optimal epsilon value</p>
 <dl class="method">
 <dt id="pycobra.diagnostics.Diagnostics.optimal_machines">
 <code class="descname">optimal_machines</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>single=False</em>, <em>epsilon=None</em>, <em>info=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pycobra.diagnostics.Diagnostics.optimal_machines" title="Permalink to this definition">¶</a></dt>
-<dd><p>Find the optimal combination of machines for testing data.</p>
+<dd><p>Find the optimal combination of machines for testing data for the COBRA predictor.</p>
 <dl class="docutils">
-<dt>X_test: array-like, [n_features]</dt>
+<dt>X: array-like, [n_features]</dt>
 <dd>Vector for which we want optimal machine combinations.</dd>
-<dt>y_test: float</dt>
+<dt>y: float</dt>
 <dd>Target value for query to compare.</dd>
 <dt>single: boolean, optional</dt>
 <dd>Option to calculate optimal machine combinations for a single query point instead.</dd>
@@ -382,11 +523,11 @@ opt: optimal machines combination</p>
 <dl class="method">
 <dt id="pycobra.diagnostics.Diagnostics.optimal_machines_grid">
 <code class="descname">optimal_machines_grid</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>line_points=200</em>, <em>info=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pycobra.diagnostics.Diagnostics.optimal_machines_grid" title="Permalink to this definition">¶</a></dt>
-<dd><p>Find the optimal epsilon and machine-combination for a single query point.</p>
+<dd><p>Find the optimal epsilon and machine-combination for a single query point for the COBRA predictor.</p>
 <dl class="docutils">
-<dt>X_test: array-like, [n_features]</dt>
+<dt>X: array-like, [n_features]</dt>
 <dd>Vector for which we want optimal machines and epsilon values</dd>
-<dt>y_test: float</dt>
+<dt>y: float</dt>
 <dd>Target value for query to compare.</dd>
 <dt>line_points: integer, optional</dt>
 <dd>Number of epsilon values to traverse the grid.</dd>
@@ -400,7 +541,7 @@ opt: optimal epislon/machine combination</p>
 <dl class="method">
 <dt id="pycobra.diagnostics.Diagnostics.optimal_split">
 <code class="descname">optimal_split</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>split=None</em>, <em>epsilon=None</em>, <em>info=False</em>, <em>graph=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pycobra.diagnostics.Diagnostics.optimal_split" title="Permalink to this definition">¶</a></dt>
-<dd><p>Find the optimal combination split (D_k, D_l) for fixed epsilon value.</p>
+<dd><p>Find the optimal combination split (D_k, D_l) for fixed epsilon value for the COBRA predictor.</p>
 <dl class="docutils">
 <dt>X: array-like, [n_features]</dt>
 <dd>Vector for which we want for optimal split.</dd>
@@ -422,23 +563,120 @@ opt: optimal epsilon value</p>
 </dd></dl>
 
 </div>
-<div class="section" id="pycobra-ewa-module">
-<h2>pycobra.ewa module<a class="headerlink" href="#pycobra-ewa-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-pycobra.ewa">
+<span id="pycobra-ewa-module"></span><h2>pycobra.ewa module<a class="headerlink" href="#module-pycobra.ewa" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pycobra.ewa.Ewa">
+<em class="property">class </em><code class="descclassname">pycobra.ewa.</code><code class="descname">Ewa</code><span class="sig-paren">(</span><em>random_state=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pycobra.ewa.Ewa" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">sklearn.base.BaseEstimator</span></code></p>
+<p>Exponential Weighted Average aggregation method.</p>
+<dl class="method">
+<dt id="pycobra.ewa.Ewa.fit">
+<code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>default=True</em>, <em>X_k=None</em>, <em>X_l=None</em>, <em>y_k=None</em>, <em>y_l=None</em>, <em>beta=None</em>, <em>X_beta=None</em>, <em>y_beta=None</em>, <em>betas=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pycobra.ewa.Ewa.fit" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>X: array-like, [n_features]</dt>
+<dd>Training data which will be used to create the EWA aggregate.</dd>
+<dt>y: array-like, shape = [n_samples]</dt>
+<dd>Target values used to train the machines used in the EWA aggregate.</dd>
+<dt>default: bool, optional</dt>
+<dd>If set as true then sets up EWA with default machines and splitting.</dd>
+<dt>X_k <span class="classifier-delimiter">:</span> <span class="classifier">shape = [n_samples, n_features]</span></dt>
+<dd>Training data which is used to train the machines loaded into Ewa. 
+Can be loaded directly into EWA; if not, the split_data method is used as default.</dd>
+<dt>y_k <span class="classifier-delimiter">:</span> <span class="classifier">array-like, shape = [n_samples]</span></dt>
+<dd>Target values used to train the machines loaded into EWA.</dd>
+<dt>X_l <span class="classifier-delimiter">:</span> <span class="classifier">shape = [n_samples, n_features]</span></dt>
+<dd>Training data which is used during the aggregation of EWA.
+Can be loaded directly into EWA; if not, the split_data method is used as default.</dd>
+<dt>y_l <span class="classifier-delimiter">:</span> <span class="classifier">array-like, shape = [n_samples] </span></dt>
+<dd>Target values which are actually used in the aggregation of EWA.</dd>
+<dt>beta: float, optional</dt>
+<dd>Parameter to be passed when creating machine weights for EWA.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycobra.ewa.Ewa.load_default">
+<code class="descname">load_default</code><span class="sig-paren">(</span><em>machine_list=['lasso', 'tree', 'ridge', 'random_forest']</em><span class="sig-paren">)</span><a class="headerlink" href="#pycobra.ewa.Ewa.load_default" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads 4 different scikit-learn regressors by default.</p>
+<dl class="docutils">
+<dt>machine_list: optional, list of strings</dt>
+<dd>List of default machine names to be loaded.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycobra.ewa.Ewa.load_machine">
+<code class="descname">load_machine</code><span class="sig-paren">(</span><em>machine_name</em>, <em>machine</em><span class="sig-paren">)</span><a class="headerlink" href="#pycobra.ewa.Ewa.load_machine" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a machine to be used during the aggregation strategy.
+The machine object must have been trained using X_k and y_k, and must have a ‘predict()’ method.
+After the machine is loaded, for it to be used during aggregation, load_machine_predictions must be run.</p>
+<dl class="docutils">
+<dt>machine_name <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Name of the machine you are loading</dd>
+<dt>machine: machine/regressor object</dt>
+<dd>The regressor machine object which is mapped to the machine_name</dd>
+</dl>
+<p>self : returns an instance of self.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycobra.ewa.Ewa.load_machine_weights">
+<code class="descname">load_machine_weights</code><span class="sig-paren">(</span><em>beta</em><span class="sig-paren">)</span><a class="headerlink" href="#pycobra.ewa.Ewa.load_machine_weights" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads the EWA weights for each machine based on the training data.
+Should be run after all the machines to be used for aggregation is loaded.</p>
+<dl class="docutils">
+<dt>beta <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Inverse temperature parameter to form the weights.</dd>
+</dl>
+<p>self : returns an instance of self.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycobra.ewa.Ewa.plot_machine_weights">
+<code class="descname">plot_machine_weights</code><span class="sig-paren">(</span><em>figsize=8</em><span class="sig-paren">)</span><a class="headerlink" href="#pycobra.ewa.Ewa.plot_machine_weights" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot each machine weights</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycobra.ewa.Ewa.predict">
+<code class="descname">predict</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#pycobra.ewa.Ewa.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>X: array-like, [n_features]</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pycobra.ewa.Ewa.split_data">
+<code class="descname">split_data</code><span class="sig-paren">(</span><em>k=None</em>, <em>l=None</em>, <em>shuffle_data=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pycobra.ewa.Ewa.split_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Split the data into different parts for training machines and for aggregation.</p>
+<dl class="docutils">
+<dt>k <span class="classifier-delimiter">:</span> <span class="classifier">int, optional</span></dt>
+<dd>k is the number of points used to train the machines. 
+Those are the first k points of the data provided.</dd>
+<dt>l: int, optional</dt>
+<dd>l is the number of points used to form the EWA aggregate.</dd>
+<dt>shuffle: bool, optional</dt>
+<dd>Boolean value to decide to shuffle the data before splitting.</dd>
+</dl>
+<p>self : returns an instance of self.</p>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 <div class="section" id="module-pycobra.visualisation">
 <span id="pycobra-visualisation-module"></span><h2>pycobra.visualisation module<a class="headerlink" href="#module-pycobra.visualisation" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="pycobra.visualisation.Visualisation">
-<em class="property">class </em><code class="descclassname">pycobra.visualisation.</code><code class="descname">Visualisation</code><span class="sig-paren">(</span><em>cobra</em>, <em>X_test</em>, <em>y_test</em>, <em>plot_size=8</em>, <em>random_state=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pycobra.visualisation.Visualisation" title="Permalink to this definition">¶</a></dt>
-<dd><p>Plots and visualisations of cobra.
+<em class="property">class </em><code class="descclassname">pycobra.visualisation.</code><code class="descname">Visualisation</code><span class="sig-paren">(</span><em>aggregate</em>, <em>X_test</em>, <em>y_test</em>, <em>plot_size=8</em>, <em>random_state=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pycobra.visualisation.Visualisation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots and visualisations of COBRA aggregates.
 If X_test and y_test is loaded, you can run the plotting functions with no parameters.</p>
 <dl class="method">
 <dt id="pycobra.visualisation.Visualisation.QQ">
 <code class="descname">QQ</code><span class="sig-paren">(</span><em>machine='COBRA'</em><span class="sig-paren">)</span><a class="headerlink" href="#pycobra.visualisation.Visualisation.QQ" title="Permalink to this definition">¶</a></dt>
-<dd><p>Plots the machine results vs the actual results in the form of a QQ plot.</p>
+<dd><p>Plots the machine results vs the actual results in the form of a QQ-plot.</p>
 <dl class="docutils">
 <dt>machine: string, optional</dt>
-<dd>Name of machine to perform QQ plot.</dd>
+<dd>Name of machine to perform QQ-plot.</dd>
 </dl>
 </dd></dl>
 
@@ -447,8 +685,8 @@ If X_test and y_test is loaded, you can run the plotting functions with no param
 <code class="descname">boxplot</code><span class="sig-paren">(</span><em>machines=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pycobra.visualisation.Visualisation.boxplot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plots boxplots of machines.</p>
 <dl class="docutils">
-<dt>machine: string, optional</dt>
-<dd>Name of machine to perform boxplot.</dd>
+<dt>machines: list, optional</dt>
+<dd>List of machines to plot boxplots.</dd>
 </dl>
 </dd></dl>
 
