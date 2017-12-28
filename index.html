@@ -94,6 +94,7 @@
 <li><a class="reference internal" href="#what-is-ensemble-learning">What is Ensemble Learning?</a></li>
 <li><a class="reference internal" href="#why-pycobra">Why pycobra?</a></li>
 <li><a class="reference internal" href="#features-and-usage">Features and Usage</a></li>
+<li><a class="reference internal" href="#references">References</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
@@ -163,54 +164,84 @@
   <div class="section" id="welcome-to-pycobra-s-documentation">
 <h1>Welcome to pycobra’s documentation!<a class="headerlink" href="#welcome-to-pycobra-s-documentation" title="Permalink to this headline">¶</a></h1>
 <p>pycobra is a python package which implements ensemble learning algoirthms. It also has a helpful suite of diagnostic and visualisation methods to analyse the aggregates and also the estimators used to create them.</p>
+<p><a class="reference external" href="https://github.com/bhargavvader/pycobra">GitHub</a>
+<a class="reference external" href="https://pypi.python.org/pypi/pycobra/">PyPi</a>
+<a class="reference external" href="https://arxiv.org/abs/1707.00558">ArXiv</a></p>
 <div class="section" id="what-is-ensemble-learning">
 <h2>What is Ensemble Learning?<a class="headerlink" href="#what-is-ensemble-learning" title="Permalink to this headline">¶</a></h2>
-<p><a class="reference external" href="https://en.wikipedia.org/wiki/Ensemble_learning">Ensemble learning</a> (also known referred to as predictor aggregation) techniques use multiple machine learning algorithms to obtain better predictive performance. Ensemble Learning methods are used for both classification and prediction techniques. The Random Forest algorithm is probably the most known among these class of algorithms, and recently more popular ensemble learning algorithms such as AdaBoost have been regularly winning Kaggle Competitions.</p>
+<p><a class="reference external" href="https://en.wikipedia.org/wiki/Ensemble_learning">Ensemble learning</a> (also known as statistical aggregation) techniques use multiple machine learning algorithms to obtain better predictive performance. Ensemble Learning methods are used for both classification and prediction techniques. The <a class="reference external" href="https://en.wikipedia.org/wiki/Random_forest">Random Forest</a> algorithm is one well known example, and recently more popular ensemble learning algorithms such as <a class="reference external" href="https://en.wikipedia.org/wiki/AdaBoost">AdaBoost</a> have been regularly winning Kaggle Competitions.</p>
 </div>
 <div class="section" id="why-pycobra">
 <h2>Why pycobra?<a class="headerlink" href="#why-pycobra" title="Permalink to this headline">¶</a></h2>
-<p>pycobra is <a class="reference external" href="https://scikit-learn.org/stable">scikit learn</a> compatible, and allows the user to plug in their own pre-trained machine learning models to create new aggregates. Since it largely follows <code class="docutils literal"><span class="pre">scikit-learn</span></code> coding conventions and usage, it is easy to use and any object with a <code class="docutils literal"><span class="pre">predict()</span></code> method can be used to create the aggregate.</p>
-<p>While some of these ensemble learning algorithms we mentioned earlier are availble through the open source python machine learning community, it largely works as a black box - it’s function is to merely predict, and not analyse how the ensemble was made or the machines used to create the ensemble. pycobra aims to serve as a regression analysis toolkit as well, with options to plot predictions, boxplots, QQ-plots, and compare performance between machines.</p>
+<p>pycobra is <a class="reference external" href="https://github.com/scikit-learn/scikit-learn">scikit learn</a> compatible, and allows the user to plug in their own pre-trained machine learning models to create new aggregates. Since it largely follows <code class="docutils literal"><span class="pre">scikit-learn</span></code> coding conventions and usage, it is easy to use and any object with a <code class="docutils literal"><span class="pre">predict()</span></code> method can be used to create the aggregate.</p>
+<p>While some of these ensemble learning algorithms we mentioned earlier are available through the open source python machine learning community, it largely works as a black box - its function is to merely predict, and not analyse how the ensemble was made or the machines used to create the ensemble. pycobra aims to serve as a regression analysis toolkit as well, with options to plot predictions, boxplots, QQ-plots, and compare performance between machines.</p>
 <p>pycobra includes implementations of the COBRA algorithm introduced by Biau et al., 2016, the Exponential Weighted Aggregate (EWA) introduced by Vovk, 1990; and a COBRA flavored majority vote inspired by Mojirsheibani, 1999.</p>
 </div>
 <div class="section" id="features-and-usage">
 <h2>Features and Usage<a class="headerlink" href="#features-and-usage" title="Permalink to this headline">¶</a></h2>
 <p>Setting up a pycobra estimator is very easy, and is akin to how scikit-learn estimators are set up:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>``cobra = Cobra() ``
-``cobra.fit(X, y)``
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">cobra</span> <span class="o">=</span> <span class="n">Cobra</span><span class="p">()</span>
+<span class="n">cobra</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>is enough to train the machine, and using cobra’s <code class="docutils literal"><span class="pre">predict()</span></code> method let’s it predict on input vectors.
 In this case, we are creating an object of the <code class="docutils literal"><span class="pre">Cobra</span></code> class which implements the COBRA aggregation method.</p>
 <p>Since we aren’t specifying which machines to use in the aggregate, the 4 default machines for prediction (Ridge Regression, Lasso regression, Decision Tree, Random Forest) are loaded. We can keep adding machines to the aggregate with the <code class="docutils literal"><span class="pre">load_machine()</span></code> method. By running <code class="docutils literal"><span class="pre">load_machine_predictions()</span></code> after we add the new machines, we can <em>update</em> our estimator.</p>
-<p>pycobra also allows us to optimise the ensemble by choosing a subset of machines, or optimise it’s hyperparameters. This is done with the <cite>Diagnostics</cite> class, which offers multiple methods to understand the optimal behaviour of the estimate.</p>
-<p>We set up our diagnostics class by simply passing our ensemble to it:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>``cobra_diagnostics = Diagnostics(cobra)``
+<p>pycobra also allows us to optimise the ensemble by choosing a subset of machines, or optimise its hyperparameters. This is done with the <code class="docutils literal"><span class="pre">Diagnostics</span></code> class, which offers multiple methods to understand the optimal behaviour of the estimate.</p>
+<p>We set up our <code class="docutils literal"><span class="pre">Diagnostics</span></code> class by simply passing our ensemble to it:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">cobra_diagnostics</span> <span class="o">=</span> <span class="n">Diagnostics</span><span class="p">(</span><span class="n">cobra</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>To find the optimal epsilon for this aggregate, we run:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>``cobra_diagnostics.optimal_epsilon(X_eps, Y_eps, line_points=100)``
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">cobra_diagnostics</span><span class="o">.</span><span class="n">optimal_epsilon</span><span class="p">(</span><span class="n">X_eps</span><span class="p">,</span> <span class="n">Y_eps</span><span class="p">,</span> <span class="n">line_points</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>returns:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>``(0.49012865501307668, 0.10577705316919428)``
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">(</span><span class="mf">0.49012865501307668</span><span class="p">,</span> <span class="mf">0.10577705316919428</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>which tells us the optimal epsilon for the input vector passed, as well as the MSE for that value of epsilon.</p>
+<p>Here, <code class="docutils literal"><span class="pre">X_eps</span></code> and <code class="docutils literal"><span class="pre">Y_eps</span></code> are the samples we find the optimal epsilon over - the tuple returned contains the optimal epsilon value followed by the corresponding MSE for that epsilon, which is the lowest for that data-set, assuming we iterate over 100 equally spaced out epsilon values.</p>
 <p>Visualisation is equally straightforward:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>``cobra_vis = Visualisation(cobra)``
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">cobra_vis</span> <span class="o">=</span> <span class="n">Visualisation</span><span class="p">(</span><span class="n">cobra</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>You can find the source-code on <a class="reference external" href="https://github.com/bhargavvader/pycobra">GitHub</a>.
-For complete examples and usage, the Jupyter notebooks illustrate the capacity of pycobra.</p>
+<p>We can then use our plotting functions; for example, creating boxplots for each of the machines used in the aggregate is as simple as:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">cobra_vis</span><span class="o">.</span><span class="n">boxplot</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>After which we can expect to see the following plot:</p>
+<a class="reference internal image-reference" href="_images/boxplots.png"><img alt="_images/boxplots.png" class="align-center" src="_images/boxplots.png" style="width: 993.6px; height: 867.6px;" /></a>
+<p>pycobra offers other visualisation tools, such as Voronoi Tesselations. These can be used to visualise clustering, as well as which data-points are optimsed by which subset of machines - both of these examples are fleshed out in the Jupyter notebooks.</p>
+<p>For complete examples and usage, the Jupyter notebooks illustrate the capacity of pycobra.</p>
 <ul class="simple">
 <li><a class="reference external" href="https://github.com/bhargavvader/pycobra/blob/master/notebooks/pycobra.ipynb">Basic Usage</a></li>
 <li><a class="reference external" href="https://github.com/bhargavvader/pycobra/blob/master/notebooks/regression.ipynb">Advanced Usage</a></li>
 <li><a class="reference external" href="https://github.com/bhargavvader/pycobra/blob/master/notebooks/visualise.ipynb">Visualisations</a></li>
 <li><a class="reference external" href="https://github.com/bhargavvader/pycobra/blob/master/notebooks/voronoi_clustering.ipynb">Voronoi Tesselations</a></li>
 </ul>
+<p>You can find the source-code on <a class="reference external" href="https://github.com/bhargavvader/pycobra">GitHub</a>.</p>
 <div class="toctree-wrapper compound">
 </div>
+</div>
+<div class="section" id="references">
+<h2>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><ol class="first upperalpha" start="7">
+<li>Biau, A. Fischer, B. Guedj and J. D. Malley (2016), <a class="reference external" href="https://doi.org/10.1016/j.jmva.2015.04.007">COBRA: A combined regression strategy, Journal of Multivariate Analysis</a>.</li>
+</ol>
+</li>
+<li><ol class="first upperalpha" start="13">
+<li>Mojirsheibani (1999), <a class="reference external" href="http://www.tandfonline.com/doi/abs/10.1080/01621459.1999.10474154">Combining Classifiers via Discretization, Journal of the American Statistical Association.</a></li>
+</ol>
+</li>
+<li><ol class="first upperalpha">
+<li><ol class="first upperalpha" start="19">
+<li>Dalalyan and A. B. Tsybakov (2007) <a class="reference external" href="https://link.springer.com/book/10.1007/978-3-540-72927-3#page=108">Aggregation by exponential weighting and sharp oracle inequalities, Conference on Learning Theory.</a></li>
+</ol>
+</li>
+</ol>
+</li>
+</ul>
 </div>
 </div>
 <div class="section" id="indices-and-tables">
