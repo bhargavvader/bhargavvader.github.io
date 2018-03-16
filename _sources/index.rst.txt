@@ -28,6 +28,18 @@ While some of these ensemble learning algorithms we mentioned earlier are availa
 pycobra includes implementations of the COBRA algorithm introduced by Biau et al., 2016, the Exponential Weighted Aggregate (EWA) introduced by Vovk, 1990; and a COBRA flavored majority vote inspired by Mojirsheibani, 1999. 
 
 
+Installation
+------------
+
+Run `pip install pycobra` to download and install from PyPI.
+
+Run `python setup.py install` for default installation.
+
+Run `python setup.py test` to run all tests.
+
+Run `pip install .` to install from source.
+
+
 Features and Usage
 ------------------
 
@@ -87,7 +99,9 @@ You can find the source-code on `GitHub <https://github.com/bhargavvader/pycobra
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :caption: Documentation:
+
+   api.rst
 
 
 References

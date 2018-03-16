@@ -1,0 +1,48 @@
+.. _api:
+
+=============
+API Reference
+=============
+
+This page lists all of the estimators and top-level functions in ``pycobra``.
+
+
+pycobra\.classifiercobra module
+-------------------------------
+
+.. automodule:: pycobra.classifiercobra
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pycobra\.cobra module
+---------------------
+
+.. automodule:: pycobra.cobra
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pycobra\.diagnostics module
+---------------------------
+
+.. automodule:: pycobra.diagnostics
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pycobra\.ewa module
+-------------------
+
+.. automodule:: pycobra.ewa
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pycobra\.visualisation module
+-----------------------------
+
+.. automodule:: pycobra.visualisation
+    :members:
+    :undoc-members:
+    :show-inheritance:
