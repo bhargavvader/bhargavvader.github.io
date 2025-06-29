@@ -1,21 +1,19 @@
 [
   {
-    "slug": "wind-study",
-    "title": "Wind Study #1",
-    "year": 2024,
-    "materials": "Website, 42 recordings",
-    "tags": ["wind", "situated-knowledge"],
-    "images": ["placeholder.jpg", "placeholder.jpg"],
-    "blurb": "First experiments recording whistling winds.",
-    "description": "To make a system of organisation …"
-  },
-  {
-    "slug": "whistle-map",
-    "title": "Cartography of Whistles",
-    "year": 2023,
-    "materials": "Print, field notes",
-    "tags": ["whistling", "mapping"],
-    "images": ["placeholder.jpg"],
-    "blurb": "Mapping pitch vs location."
+    "slug": "1hourCD",
+    "title": "1hourCD",
+    "year": 2010,
+    "materials": "CD,print,music,community,labour,library,libraryshelving,books",
+    "tags": ["partcipitory", "time", "design"],
+    "media": [
+      { "type": "image", "src": "images/time/1hourCD01.jpg" },
+      { "type": "image", "src": "images/DIY/1hourCD02.jpg" },
+      { "type": "image", "src": "images/DIY/1hourCD03.jpg" },
+      { "type": "image", "src": "images/DIY/1hourCD04.jpg" },
+      { "type": "image", "src": "images/DIY/1hourCD05.jpg" }
+    ],
+    "blurb": "1 hour CD designed consisting of songs us library shelvers listened to during our 1 hour shifts",
+    "Description": "My first job was working as a library shelver in a library between the years of 2009–2013. This experience really shaped my interests and career and who I am. I saw that most shelvers listened to music when shelving but we never spoke about it, so I wanted to connect us throughout the sheet, and then I made a CD (it was the time we used CDs:) and designed the album cover and gave one to each shelver."
   }
 ]
+
