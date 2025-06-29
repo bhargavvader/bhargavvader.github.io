@@ -25,5 +25,13 @@
     "tags": ["wind", "mapping"],
     "images": ["placeholder.jpg"],
     "blurb": "Collective documentation of local breezes."
-  }
+  },
+  {
+  "slug":"wind-study",
+  "title":"Wind Study #1",
+  "year":2024,
+  "materials":"Website, 42 recordings",
+  "description":"To make a system of organisation …"
+}
+
 ]

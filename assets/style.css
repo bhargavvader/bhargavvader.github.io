@@ -1,4 +1,14 @@
 /* tag chip used inside the light-box */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+
+body{
+  font: 400 18px/1.45 "Inter", sans-serif;
+  background:#fff;
+  color:#111;
+}
+a      { color:#111; text-decoration:none }
+a:hover{ text-decoration:underline }
+
 .tag {
   display:inline-block;
   margin:.25em .5em;
@@ -7,5 +17,7 @@
   font-size:.75em;
   border-radius:4px;
 }
+
+
 
 /* layout tweaks you need — extend as you style */
