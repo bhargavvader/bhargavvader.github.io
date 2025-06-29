@@ -1,4 +1,4 @@
-// ───────────────────────────────── assets/gallery.js ───────────────────────
+/* ─────────────────────────── assets/gallery.js ────────────────────────── */
 import PhotoSwipeLightbox from
   'https://unpkg.com/photoswipe@5/dist/photoswipe-lightbox.esm.js';
 
@@ -6,67 +6,70 @@ fetch('data/items.json')
   .then(r => r.json())
   .then(items => {
 
-    /* ---------- build masonry thumbnails ---------- */
-    const g      = document.getElementById('gallery');
-    const slides = [];                                 // master slide list
+    const gallery   = document.getElementById('gallery');
+    const slides    = [];           // master list for PhotoSwipe
+    const indexMap  = [];           // slide-index  → item-index
 
-    items.forEach(item => {
-      // find the first image for the cover
-      const firstImg = (item.media || []).find(m => m.type === 'image');
-      if (!firstImg) return;                           // skip if no pictures
+    /* ---------- build masonry grid & prepare slides -------------------- */
+    items.forEach((item, itemIdx) => {
 
-      /* masonry card ------------------------------------------------------- */
-      const card = document.createElement('div');
-      card.className = 'masonry-item';
-      card.innerHTML = `
-        <a  href="${firstImg.src}" data-pswp-width="1600" data-pswp-height="1200"
-            data-index="${slides.length}">
-          <img src="${firstImg.src}" alt="${item.title}">
+      const imgs = (item.media || []).filter(m => m.type === 'image');
+      if (!imgs.length) return;                 // skip entries with no images
+
+      const cover = imgs[0].src;                // first image → thumbnail
+
+      /* masonry element */
+      const el = document.createElement('div');
+      el.className = 'masonry-item';
+      el.innerHTML = `
+        <a href="${cover}" data-pswp-width="1600" data-pswp-height="1200"
+           data-index="${slides.length}">
+          <img src="${cover}" alt="${item.title}">
         </a>
         <h2>${item.title}</h2>
         <p>${item.year ?? ''}</p>`;
-      g.appendChild(card);
+      gallery.appendChild(el);
 
-      /* register **all** images of this work for PhotoSwipe --------------- */
-      item.media
-          .filter(m => m.type === 'image')
-          .forEach(m => slides.push({
-              src   : m.src,
-              w     : 1600,              // ← put real dims if you have them
-              h     : 1200,
-              title : item.title,
-              item  : item              // backlink for the info-panel
-          }));
+      /* every image of this work becomes a slide */
+      imgs.forEach(img => {
+        slides.push({ src: img.src, w: 1600, h: 1200, title: item.title });
+        indexMap.push(itemIdx);     // remember which item this slide belongs to
+      });
     });
 
-    /* ---------- PhotoSwipe lightbox ---------- */
+    /* ---------- PhotoSwipe light-box ----------------------------------- */
     const lightbox = new PhotoSwipeLightbox({
       gallery    : '#gallery',
       children   : 'a',
       pswpModule : () => import('https://unpkg.com/photoswipe@5')
     });
 
-    // hand PhotoSwipe our custom slide objects
+    // Supply our slide objects
     lightbox.on('itemData', e => Object.assign(e.itemData, slides[e.index]));
 
-    /* ---------- info panel (extra metadata) ---------- */
+    lightbox.init();      // initialise before adding afterInit handler
+
+    /* ---------- info panel (extra metadata) ---------------------------- */
     lightbox.on('afterInit', () => {
       const panel = document.createElement('div');
       panel.id = 'info-panel';
       document.body.appendChild(panel);
 
-      // update content on every slide change
-      lightbox.on('change', ({ index }) => {
-        const it = slides[index].item;                 // ← easy now!
+      const updatePanel = idx => {
+        const item = items[indexMap[idx]];
+        if (!item) return;
+
         panel.innerHTML = `
-          <h3>${it.title}</h3>
-          <p><strong>Year:</strong> ${it.year}<br>
-             <strong>Materials:</strong> ${it.materials}</p>
-          <p>${it.description || it.Description || ''}</p>`;
-      });
+          <h3>${item.title}</h3>
+          <p>
+            <strong>Year:</strong> ${item.year ?? '—'}<br>
+            <strong>Materials:</strong> ${item.materials ?? '—'}
+          </p>
+          <p>${item.description || item.Description || ''}</p>`;
+      };
+
+      updatePanel( lightbox.pswp.currIndex );   // show for first slide
+      lightbox.on('change', ({ index }) => updatePanel(index));
     });
-
-    lightbox.init();   // keep this last
-
   })
   .catch(err => console.error('Gallery load error:', err));
