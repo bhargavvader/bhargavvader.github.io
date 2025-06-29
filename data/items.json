@@ -3,35 +3,19 @@
     "slug": "wind-study",
     "title": "Wind Study #1",
     "year": 2024,
-    "duration": "3 weeks",
+    "materials": "Website, 42 recordings",
     "tags": ["wind", "situated-knowledge"],
     "images": ["placeholder.jpg", "placeholder.jpg"],
-    "blurb": "First experiments recording whistling winds."
+    "blurb": "First experiments recording whistling winds.",
+    "description": "To make a system of organisation …"
   },
   {
     "slug": "whistle-map",
     "title": "Cartography of Whistles",
     "year": 2023,
-    "duration": "10 days",
+    "materials": "Print, field notes",
     "tags": ["whistling", "mapping"],
     "images": ["placeholder.jpg"],
     "blurb": "Mapping pitch vs location."
-  },
-  {
-    "slug": "wind-map",
-    "title": "Aeolian Archive",
-    "year": 2023,
-    "duration": "5 months",
-    "tags": ["wind", "mapping"],
-    "images": ["placeholder.jpg"],
-    "blurb": "Collective documentation of local breezes."
-  },
-  {
-  "slug":"wind-study",
-  "title":"Wind Study #1",
-  "year":2024,
-  "materials":"Website, 42 recordings",
-  "description":"To make a system of organisation …"
-}
-
+  }
 ]
